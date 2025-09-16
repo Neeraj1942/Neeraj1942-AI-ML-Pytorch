@@ -114,7 +114,29 @@ tensor([[1, 2],
          [5, 6],
          [7, 8]])
 
+tenser a = torch.randn(2,4)
+print(a)a.shape ->
+tensor([[1, 2, 5, 6],
+         [3, 4, 7, 8]])
+torch.size([2,4])
 
+now reshaping it ->
+b = a.reshape(1,8)
+print(b)  -> this is reshape the tensor into 1,8 style size.
+
+Converting numpy arrays to tensors ->
+a =np.array([[1,2],[3,4]])
+print(a) 
+
+converting -> a to tensor->
+tensor = torch.from_numpy(a)
+print(tensor)
+
+[[1 2]
+ [3 4]] -> numpy 'a'
+tensor([[1 2]
+        [3 4]]) -> tensor
+              
 
 
 
