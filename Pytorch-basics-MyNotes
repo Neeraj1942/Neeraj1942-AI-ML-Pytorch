@@ -1,1 +1,127 @@
-Hi
+PyTorch -> 
+major benifits ->
+Pythonic and intuitive
+Dynamic computational graph
+Strong community support
+Seamless GPU acceleration
+TorchVision, TorchText, TorchAudio support
+PyTorch Lightning integration
+ONNX model export support
+Easy integration with Hugging Face, TensorBoard, FastAI
+Abundant educational resources
+Flexible and modular design
+
+Main working concepts ->
+1. Imperative Programming -> performs computation while going through each line of code, same like python.(easy to debug)
+2. Dynamic Computational Graphics -> it dynamically creates graphs so that the runtime decreases , 
+unlike TensorFlow where each grapgh is statically waited and executed.
+
+Key Library features ->
+1. torch.jit -> pytorch 1.0 , high level compiler which seperates, the code from the model.
+so it helps in efficient model optimization like TPUs and GPUs.
+
+1. TorchScript -> help to export the model to an production environment where there is no access to python. But we can surely train the model in oython
+2. Distributed Training -> helps in paralellizing the computations which helps to use multiple GPUs and helps process multiple batches of data.
+3. PyTorch Python Support -> easy environment, helps in and support with the features likewise used in python.
+
+Tensors -> are the base structure of PyTorch, they are generalized arrays and matrices.
+Tensors are multidimensional arrays.
+
+Types of tensors in pytorch are ->
+FloatTensor – 32-bit floating point
+DoubleTensor – 64-bit floating point
+HalfTensor – 16-bit floating point
+IntTensor – 32-bit signed integer
+LongTensor – 64-bit signed integer
+ShortTensor – 16-bit signed integer
+ByteTensor – 8-bit unsigned integer
+BoolTensor – Boolean tensor (True/False)
+
+In numpy we use -> 
+a = np.array(2)
+b = np.array(1)
+print(b,a)
+
+Operations - >
+print(a-b), print(a+b), print(a/b),print(a*b)
+
+Now code for pytorch is ->
+a = torch.tensor(2)
+b = torch.tensor(1)
+print(b,a)
+
+Operations - >
+print(a-b), print(a+b), print(a/b),print(a*b)
+
+matrix operations ->
+matrix of zeros
+a = np.zeros ((3,3))
+print(a)
+print (a.shape)
+[[0. 0. 0.]
+[0. 0. 0.1
+[0. 0. 0.]] 
+( 3 * 3)
+
+Pytorch ->
+a = torch.zeros((3,3))
+print(a)
+print (a.shape)
+tensor([[0. 0. 0.]
+[0. 0. 0.1
+[0. 0. 0.]]) 
+torch.Size([3 * 3])
+
+
+Matrix ->
+np.random.seed (42)
+#matrix of random numbers
+a = np. random. randn (3,3)
+a
+array([[ 152392986, 023915337, 0.23413636],
+[ 1.57921282, 0.76743473,0.49671415,]
+[-0.1382643, 0.64768854, 1.52302986]])
+
+Pytorch ->
+torch.manual_seed (42)
+#matrix of random numbers
+a = torch.randn (3,3)
+a
+tensor([[ 152392986, 023915337, 0.23413636],
+[ 1.57921282, 0.76743473,0.49671415,]
+[-0.1382643, 0.64768854, 1.52302986]])
+
+for transpose ->
+Matrix ->  print(np.transpose(a))
+Pytorch -> torch.t(a)   -> is build in transpose function.
+
+Concatinating vertically ->
+import torch
+
+a = torch.tensor([[1, 2],
+                  [3, 4]])
+b = torch.tensor([[5, 6],
+                  [7, 8]])
+
+
+dim =1 : torch.concat((a,b),dim=1) ->
+tensor([[1, 2, 5, 6],
+         [3, 4, 7, 8]])
+
+dim =0 : torch.concat((a,b),dim=0)->
+tensor([[1, 2],
+         [3, 4],
+         [5, 6],
+         [7, 8]])
+
+
+
+
+
+
+
+
+
+
+
+
