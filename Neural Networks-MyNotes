@@ -34,4 +34,14 @@ Examples ->
 3. Tanh    -> Similar to sigmoid, but outputs between -1 and 1 - (-1,1)
 4. Softmax -> Multi-class classification output                - (0,1)->(0,1), and all outputs sum to 1
 
+Now Unnderstanding,
+Forward Propogation -> Forward propagation is how a neural network takes input 
+(like a picture or some numbers), processes it, and gives an output (like a prediction).
+
+This process of detailed in the forward direction from input to output ->
+Now At each layer, the network performs two main steps:
+1. Linear transformation: Multiply inputs by weights and add bias.
+2. Non-linear activation: Apply an activation function to the result.
+
+
 
