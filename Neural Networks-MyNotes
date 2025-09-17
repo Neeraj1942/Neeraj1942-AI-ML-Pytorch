@@ -2,3 +2,18 @@
 1. Layer 1  -> Input Layer  -> Takes input features
 2. Layer 2  -> Hidden Layer -> Applies weights and biases, then passes through an activation function
 3. Layer 3  -> Output Layer -> Transforms hidden layer output into a final prediction.
+
+Then,
+Fire or No Fire -> for inputs like x1 ,x2 ->
+x1 + x2 > threshold -> Fire 
+x1 + x2 < threshold -> No Fire
+ 
+x1 + x2 - threshold > 0
+x1 + x2 - threshold < 0
+
+when (-threshold = bias)
+
+
+Mainly 
+x1 + x2 + bias > 0
+x1 + x2 + bias > 0
