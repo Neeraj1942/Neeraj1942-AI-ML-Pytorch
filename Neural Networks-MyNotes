@@ -1,0 +1,4 @@
+3 types of layers ->
+1. Layer 1  -> Input Layer  -> Takes input features
+2. Layer 2  -> Hidden Layer -> Applies weights and biases, then passes through an activation function
+3. Layer 3  -> Output Layer -> Transforms hidden layer output into a final prediction.
