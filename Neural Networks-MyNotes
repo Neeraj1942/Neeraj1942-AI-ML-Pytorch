@@ -14,6 +14,15 @@ x1 + x2 - threshold < 0
 when (-threshold = bias)
 
 
-Mainly 
-x1 + x2 + bias > 0
-x1 + x2 + bias > 0
+Mainly there are 3 steps ->
+1. Bias -> Bias is an extra parameter added to the weighted sum.
+It helps the network make predictions even when all inputs are zero.
+
+x1 + x2 + bias > 0  -> Fire
+x1 + x2 + bias > 0  -> No Fire
+
+2. Weights -> Weights are the learnable parameters that control the strength of the connection between neurons in one layer to the next.
+Each input is multiplied by a weight before being passed forward.
+
+y(output) = wo + x1 
+
