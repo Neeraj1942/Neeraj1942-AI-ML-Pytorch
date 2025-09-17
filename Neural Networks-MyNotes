@@ -24,5 +24,14 @@ x1 + x2 + bias > 0  -> No Fire
 2. Weights -> Weights are the learnable parameters that control the strength of the connection between neurons in one layer to the next.
 Each input is multiplied by a weight before being passed forward.
 
-y(output) = wo + x1 
+y(output) = wo + x0 + w1 + x1 + w2 + x2 +.......+ wn + xn , ( x is the input)
+
+3. Activation Function -> An activation function is applied to the output z of a neuron to introduce non-linearity.
+(If not applied, Without it, a neural network would just be a big linear function — which can't model complex patterns)
+Examples ->
+1. ReLU    -> Most common for hidden layers                    - [0,∞)
+2. Sigmoid -> Binary classification output                     - (0,1)
+3. Tanh    -> Similar to sigmoid, but outputs between -1 and 1 - (-1,1)
+4. Softmax -> Multi-class classification output                - (0,1)->(0,1), and all outputs sum to 1
+
 
