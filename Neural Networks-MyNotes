@@ -19,7 +19,7 @@ Mainly there are 3 steps ->
 It helps the network make predictions even when all inputs are zero.
 
 x1 + x2 + bias > 0  -> Fire
-x1 + x2 + bias > 0  -> No Fire
+x1 + x2 + bias < 0  -> No Fire
 
 2. Weights -> Weights are the learnable parameters that control the strength of the connection between neurons in one layer to the next.
 Each input is multiplied by a weight before being passed forward.
@@ -44,4 +44,24 @@ Now At each layer, the network performs two main steps:
 2. Non-linear activation: Apply an activation function to the result.
 
 
+Reducing Error in Neural Networks ->
+1. we have 3 things - > input, weights , activation function ( only the weights help us decide because input cannot change , and activation function further depends on the weights and its outputs)
+So we stick to changing the weights , between , input -> layer 1 , layer 1 -> layer 2 and so on.
 
+Gradient descent ->
+
+Error function -> (y-y^)^2/2
+1. Should be continuous at each point 
+2. Should be differentialable
+
+and this has a convex property , helps us find the minimum
+the error function also depends on the bias between the layers ,inout and output.
+
+input -> layer -> output -> 
+Error ( Wil,Bil,Wlo,Blo)->
+W -> Weights, B -> Bias
+Wil = Wil - Diff(E)/Diff(Wil) ... same for the other 3 as well.
+Diff(E)/Diff(Wil) -> gives the slope of error with respect to weight b/w input and layer ... so on
+Error 
+
+Back Propogation in NN ->
