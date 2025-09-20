@@ -65,3 +65,6 @@ Diff(E)/Diff(Wil) -> gives the slope of error with respect to weight b/w input a
 Error 
 
 Back Propogation in NN ->
+1. Make a computational graph
+2. Then create a chain rule to calculate the derivatives
+Note: First step of back propogation is finding the error.
