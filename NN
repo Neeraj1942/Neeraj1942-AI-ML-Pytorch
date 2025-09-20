@@ -1,0 +1,31 @@
+Understanding the working of Neural Networks
+Deep Learning ->
+
+Machine Learning ->
+1. Learning from the data
+2. Making predictions
+
+Good for use case->
+1. Structured data and simpler tasks
+2. Requires less data to learn
+3. cpus smaller servor
+4. less time to train
+
+Deep Learning ->
+1. Algorithm Approach
+2. Data Requirement
+3. Types of Problems
+
+Good for use case->
+1. Unstrcuted data and complex tasks
+2. Requires more/large data to learn
+3. gpus and cpus required, tpus
+4. 
+
+Computer Vision -> field of study which deals with extracting inofrmation from images and videos
+NLP -> Field of study which extracts information from text
+
+Applications of deep learning ->
+Language interpretations - > Google assistance, chatgpt
+Recommendation systems -> spotify, netflix
+Image recognition and computer vision -> face id , tesla autopilot
