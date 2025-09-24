@@ -483,6 +483,8 @@ Implementation : optimizer = optim.SGD(model.parameter(), lr = 0.001, momentum =
 | `W_(t+1)`     | Updated weights after applying the momentum-based gradient step                           |
 
 3.AdaGrad (Adaptive Gradient Algorithm)
+Implementation : optimizer = optim.Adagrad(model.parameters())
+
 Parameters that get frequent updates receive smaller learning rates.
 Parameters that are rarely updated receive larger learning rates.
 Accumulate squared gradients for each parameter i: G_t,i = G_(t-1),i + (g_t,i)^2
@@ -506,12 +508,14 @@ t: current epoch or iteration
 Decreases slowly over time
 
 4.RMSProp (Root Mean Square Propagation)
+Implementation : optimizer = optim.RMSprop(model.parameters())
 
 1. Update moving average of squared gradients: E[g²]_t = γ * E[g²]_(t−1) + (1 − γ) * (g_t)²
 2. Update parameters: θ = θ − (η / sqrt(E[g²]_t + ε)) * g_t
 So, learning rate is divided by the RMS (Root Mean Square) of recent gradients.
 
 5.Adam (Adaptive Moment Estimation)
+Implementation : optimizer = optim.Adam(model.parameters())
 
 Adam dynamically adjusts the learning rate for each parameter, using:
 A moving average of gradients (1st moment)
@@ -523,5 +527,28 @@ Bias correction (because mt and vt are initialized at 0):
 m̂_t = m_t / (1 - β1^t)
 v̂_t = v_t / (1 - β2^t)
 Parameter update: θ = θ - η * m̂_t / (sqrt(v̂_t) + ε)
+
+| Optimizer          | Adaptive LR | Momentum  | Best Use Cases                    | Pros                                       | Cons                                          | Default Params                   |
+| ------------------ | ----------- | --------- | --------------------------------- | ------------------------------------------ | --------------------------------------------- | -------------------------------- |
+| **SGD**            | ❌           | ❌ / ✅     | Simple tasks, small datasets      | Easy to implement, interpretable           | Slow convergence, sensitive to LR             | `lr=0.01`                        |
+| **SGD + Momentum** | ❌           | ✅         | Deep nets, smooth convergence     | Speeds up training, dampens oscillations   | Still uses fixed LR                           | `lr=0.01`, `momentum=0.9`        |
+| **Adagrad**        | ✅           | ❌         | NLP, sparse data                  | Per-parameter LR, good for sparse features | LR decays too quickly, may stop learning      | `lr=0.01`                        |
+| **RMSprop**        | ✅           | 🚫 (soft) | RNNs, non-stationary data         | Solves Adagrad’s decay problem             | Still requires tuning of LR & decay           | `lr=0.001`, `alpha=0.9`          |
+| **Adadelta**       | ✅           | 🚫        | Deep CNNs, when tuning LR is hard | No need to set initial learning rate       | Slower convergence in some cases              | `rho=0.9`, `eps=1e-6`            |
+| **Adam**           | ✅           | ✅         | Most deep learning models         | Combines RMSprop + Momentum + bias fix     | Slightly more complex, can overfit small data | `lr=0.001`, `betas=(0.9, 0.999)` |
+| **AdamW**          | ✅           | ✅         | Transformers, LLMs (BERT, GPT)    | Better weight decay handling (than Adam)   | Slightly more complex to tune                 | `lr=0.001`, `weight_decay=0.01`  |
+| **Nadam**          | ✅           | ✅         | Sequence models (NLP, RNNs)       | Combines Nesterov + Adam                   | Slower in some cases                          | `lr=0.002`, `betas=(0.9, 0.999)` |
+| **Lion** (new)     | ✅           | ✅         | LLMs, vision transformers         | Fast convergence, lower memory             | Still under research                          | `lr=0.002` (varies)              |
+
+| Situation                            | Optimizer          |
+| ------------------------------------ | ------------------ |
+| Just starting?                       | **Adam**           |
+| Sparse features (NLP)                | **Adagrad**        |
+| RNNs / non-stationary data           | **RMSprop**        |
+| Very deep nets (with weight decay)   | **AdamW**          |
+| Custom weight decay (e.g. LLMs)      | **AdamW**          |
+| Simple task, interpretable training  | **SGD**            |
+| Faster convergence in classic models | **SGD + Momentum** |
+| You don’t want to tune LR            | **Adadelta**       |
 
 
