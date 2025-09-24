@@ -196,6 +196,7 @@ Types of Gradient descent ->
 1 epoch : Each sample has gone thrpugh one pass of forward and backward propogation.
 'm' -> number of samples in a dataset
 if we have 50 -> m's , then we use 10 epochs means -> 50 *10 = 500 times 
+
 1. Stochastic -> 
 1. add a shuffle parameter before selection of the records
 2. improved model performace beacause of the frequent updation of weights and biases
@@ -216,6 +217,8 @@ Then, forward propogation on the subset, loss function, updates the weights of t
 i.e 50 samples 10 batches -> 5 subsets, 5 epochs = 25 times
 Note : Mini batch size of 2^n is preffered
 
+
+1. Stochastic Gradient Descent ->
 Implementation on code ->
 import torch.optic as optim 
 optimizer = optim.SGD(model.parameter(), lr = 0.001)
@@ -245,6 +248,280 @@ train_loss = criterion(model(X_train_tensor), y_train_tensor).item()
 test_loss = criterion(model(X_test_tensor), y_test_tensor).item()
 printf(f'Without training :\n Train Loss : {train_loss : .4f}, Test Loss : {test_loss:.4f}')
 
+model(X_train_tensor)[:5]
 
+Stochastic Gradient Descent ->
+import torch
+from torch.utils.data import DataLoader
+
+# Create DataLoader
+train_loader = DataLoader(train_data, batch_size=1, shuffle=True)
+
+# Training loop
+num_epochs = 10
+for epoch in range(num_epochs):
+    model.train()  # Set model to training mode
+    for X_batch, y_batch in train_loader:
+        # Forward pass
+        pred = model(X_batch)
+        loss = criterion(pred, y_batch)
+
+        # Backward pass and optimization
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    # Evaluate loss after each epoch
+    model.eval()  # Set model to evaluation mode
+    with torch.no_grad():
+        train_loss = criterion(model(X_train_tensor), y_train_tensor).item()
+        test_loss = criterion(model(X_test_tensor), y_test_tensor).item()
+
+    print(f'Epoch {epoch + 1}: Train Loss = {train_loss:.4f}, Test Loss = {test_loss:.4f}')
+
+
+DataLoader(...)	 -> Creates an iterable loader over your training dataset.
+
+optimizer.zero_grad() ->
+It resets (clears) the gradients of all model parameters before computing new gradients during backpropagation.
+
+with torch.no_grad(): ->
+A context manager that temporarily disables gradient tracking.
+During evaluation or inference, you don’t need gradients — you’re not calling loss.backward() or optimizer.step().
+uses ->
+Disabling gradient tracking:
+Saves memory
+Speeds up computation
+
+
+2. Batch Gradient Descent ->
+then we reinitialize the code ->
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# Reinitialize the model
+model = nn.Sequential(
+    nn.Linear(2, 2),
+    nn.Sigmoid(),
+    nn.Linear(2, 1)
+)
+
+# Define optimizer with learning rate
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+
+
+import torch
+from torch.utils.data import DataLoader
+
+# Create DataLoader with all 800 samples in a single batch
+train_loader = DataLoader(train_data, batch_size=800, shuffle=True)
+
+# Training loop for 1000 epochs
+num_epochs = 1000
+for epoch in range(num_epochs):
+    model.train()  # Set model to training mode
+
+    for X_batch, y_batch in train_loader:
+        # Forward pass
+        pred = model(X_batch)
+        loss = criterion(pred, y_batch)
+
+        # Backward pass and optimization
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    # Print losses every 100 epochs
+    if (epoch + 1) % 100 == 0:
+        model.eval()  # Set model to evaluation mode
+        with torch.no_grad():
+            train_loss = criterion(model(X_train_tensor), y_train_tensor).item()
+            test_loss = criterion(model(X_test_tensor), y_test_tensor).item()
+        print(f'Epoch {epoch + 1}: Train Loss = {train_loss:.4f}, Test Loss = {test_loss:.4f}')
+
+Note ->
+ if (epoch + 1) % 100 == 0:
+        model.eval()  # Set model to evaluation mode
+
+model.eval()	            ->      Switch to evaluation mode
+(epoch + 1) % 100 == 0	  ->      Checkpoint every 100 epochs
+so we print the loss for train and test after every 100 epochs.
+
+
+3. Mini-Batch ->
+
+# Reinitialize the model
+model = nn.Sequential(
+    nn.Linear(2, 2),
+    nn.Sigmoid(),
+    nn.Linear(2, 1)
+)
+
+# Define optimizer with learning rate
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+
+from torch.utils.data import DataLoader
+
+# Assuming model, criterion, optimizer, train_data,
+# X_train_tensor, y_train_tensor, X_test_tensor, y_test_tensor are defined
+
+# Create DataLoader with batch size 64
+train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
+
+# Training loop for 500 epochs
+for epoch in range(500):
+    model.train()  # Set model to training mode
+
+    for X_batch, y_batch in train_loader:
+        # Forward pass
+        pred = model(X_batch)
+        loss = criterion(pred, y_batch)
+
+        # Backward pass and optimization
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    # Print losses every 50 epochs
+    if (epoch + 1) % 50 == 0:
+        model.eval()  # Set model to evaluation mode
+        with torch.no_grad():
+            train_loss = criterion(model(X_train_tensor), y_train_tensor).item()
+            test_loss = criterion(model(X_test_tensor), y_test_tensor).item()
+        print(f'Epoch {epoch + 1}: Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}')
+
+| Method                      | Batch Size       | Samples (N) | Epochs (E) | Batches per Epoch | Total Updates (Batches × Epochs) |
+| --------------------------- | ---------------- | ----------- | ---------- | ----------------- | -------------------------------- |
+| Stochastic Gradient Descent | 1                | 800         | 10         | 800               | 8,000                            |
+| Batch Gradient Descent      | 800 (full batch) | 800         | 1000       | 1                 | 1,000                            |
+| Mini-Batch Gradient Descent | 64               | 800         | 500        | 13                | 6,500                            |
+
+
+
+Other optimization Techniques ->
+1.Stochastic Gradient Descent with momentum  ->
+Accelerates convergence by adding a fraction of the previous update to the current update.
+Helps escape local minima and smooths oscillations.(reach the global minima easily)
+
+2.Nesterov Accelerated Gradient (NAG) / Nesterov Momentum ->
+A variant of Momentum that looks ahead by calculating the gradient at the approximate future position of the parameters.
+Often provides faster convergence than standard momentum.
+
+3.AdaGrad (Adaptive Gradient Algorithm) ->
+Adapts learning rates individually for each parameter based on past gradients.
+Performs larger updates for infrequent parameters, smaller updates for frequent ones.
+Can suffer from aggressive, monotonically decreasing learning rates.
+
+4.RMSProp (Root Mean Square Propagation) ->
+Fixes AdaGrad’s decaying learning rate issue by using a moving average of squared gradients.
+Keeps the learning rate adaptive and balanced over time.
+
+5.Adam (Adaptive Moment Estimation) ->
+Combines ideas from Momentum and RMSProp.
+Keeps running averages of both gradients and their squared values to adapt learning rates for each parameter.
+Generally considered one of the best default optimizers — fast convergence and robust.
+
+
+1.Stochastic Gradient Descent with momentum ->
+Implementation : optimizer = optim.SGD(model.parameter(), lr = 0.001, momentum =0.9)
+
+1. Compute Gradient at Current Weights : g_t = ∇L(w_t)
+2. Update the Velocity (Moving Average of Gradients) : v_t = β * v_(t-1) + (1 - β) * g_t
+3. Update the Weights : w_(t+1) = w_t - η * v_t
+| Symbol    | Meaning                       |
+| --------- | ----------------------------- |
+| `g_t`     | Gradient at current weights   |
+| `v_t`     | Momentum term (velocity)      |
+| `β`       | Momentum decay factor (0.9\~) |
+| `η`       | Learning rate                 |
+| `w_t`     | Current weights               |
+| `w_(t+1)` | Updated weights               |
+
+Assume:
+Initial weight 0 = 4 
+Learning rate 𝜂 = 0.1
+Momentum 𝛾 = 0.9
+Initial velocity 𝑣 =0
+Loss: 
+L(θ)=θ^2 ⇒∇L=2θ
+
+🔁 Step-by-Step:
+
+Step 1:
+g=2⋅4=8
+v=0.9⋅0 + 0.1⋅8=0.8
+𝜃 = 4 − 0.8 = 3.2
+
+Step 2:
+g=2⋅3.2 = 6.4
+v=0.9⋅0.8 + 0.1⋅6.4=1.36
+θ=3.2−1.36=1.84
+
+Step 3:
+g= 2⋅1.84 = 3.68
+v = 0.9⋅1.36 + 0.1⋅3.68=1.592
+𝜃 = 1.84−1.592= 0.248
+
+
+2.Nesterov Accelerated Gradient (NAG) / Nesterov Momentum :
+Implementation : optimizer = optim.SGD(model.parameter(), lr = 0.001, momentum =0.9, nesterov =True)
+
+1. Lookahead Step -> Estimate future weights using current velocity: W_lookahead = W_t - γ * v_(t-1)
+2. Compute Gradient at Lookahead Weights -> Calculate the gradient at the lookahead position: g_t = ∇L(W_lookahead)
+3. Update Velocity (Momentum Term) : v_t = β * v_(t-1) + (1 - β) * g_t
+4. Update Weights (Parameters) : W_(t+1) = W_t - η * v_t
+| Symbol        | Meaning                                                                                   |
+| ------------- | ----------------------------------------------------------------------------------------- |
+| `W_t`         | Current weights at time step `t`                                                          |
+| `W_lookahead` | Lookahead weights estimated by moving from current weights along the previous velocity    |
+| `g_t`         | Gradient of the loss function computed at the lookahead weights (`∇L(W_lookahead)`)       |
+| `v_t`         | Velocity (momentum term), a moving average of past gradients                              |
+| `β`           | Momentum decay factor (typically \~0.9), controls how much past gradients affect velocity |
+| `γ`           | Momentum factor, often same as `β`, scales the lookahead step                             |
+| `η`           | Learning rate, controls step size during weight update                                    |
+| `W_(t+1)`     | Updated weights after applying the momentum-based gradient step                           |
+
+3.AdaGrad (Adaptive Gradient Algorithm)
+Parameters that get frequent updates receive smaller learning rates.
+Parameters that are rarely updated receive larger learning rates.
+Accumulate squared gradients for each parameter i: G_t,i = G_(t-1),i + (g_t,i)^2
+
+Where:
+G_t,i is the sum of squared gradients for parameter i up to time t
+g_t,i is the gradient of the loss with respect to parameter i at time t
+
+Update the parameter: θ_t+1,i = θ_t,i - (η / (sqrt(G_t,i) + ε)) * g_t,i
+
+Where:
+η is the learning rate
+ε is a small value to prevent division by zero (e.g., 1e-8)
+sqrt(G_t,i) scales the learning rate based on past gradients
+
+Time-based decay
+
+Reduces the learning rate as a function of time step t:  η_t = η_0 / (1 + decay_rate * t) -> decay rate is fixed to 0.1(in pytorch)
+0: initial learning rate
+t: current epoch or iteration
+Decreases slowly over time
+
+4.RMSProp (Root Mean Square Propagation)
+
+1. Update moving average of squared gradients: E[g²]_t = γ * E[g²]_(t−1) + (1 − γ) * (g_t)²
+2. Update parameters: θ = θ − (η / sqrt(E[g²]_t + ε)) * g_t
+So, learning rate is divided by the RMS (Root Mean Square) of recent gradients.
+
+5.Adam (Adaptive Moment Estimation)
+
+Adam dynamically adjusts the learning rate for each parameter, using:
+A moving average of gradients (1st moment)
+A moving average of squared gradients (2nd moment)
+
+Update biased first moment estimate (momentum): m_t = β1 * m_(t-1) + (1 - β1) * g_t
+Update biased second raw moment estimate (squared gradients): v_t = β2 * v_(t-1) + (1 - β2) * (g_t)^2
+Bias correction (because mt and vt are initialized at 0):
+m̂_t = m_t / (1 - β1^t)
+v̂_t = v_t / (1 - β2^t)
+Parameter update: θ = θ - η * m̂_t / (sqrt(v̂_t) + ε)
 
 
