@@ -1,1 +1,330 @@
+Predict customers' credit future spend on card, based on historical spend data and demographic parameters
+Understanding the consumption pattern for credit cards at an individual consumer level is important for customer relationship management. 
+This understanding allows banks to customize for consumers and make strategic marketing plans. 
+Thus it is imperative to study the relationship between the characteristics of the consumers and their consumption patterns. 
+Bank of Trust has given a sample of their customers, along with their details like age, gender and other demographics. 
+Bank of Trust has also shared information on liabilities, assets and history of transactions with the bank for each customer.
+In addition to the above, data has been provided for a particular set of customers' credit card spend in the previous 3 months (April, May & June) 
+and their expected average spend in the coming 3 months (July, August & September). 
+The goal is to predict the average spend for the customers for the upcoming 3 months
+
+Code ->
+
+import pandas as pd
+
+# Loading data
+df = pd.read_csv('cc_spend_prediction.csv')
+
+# Display the first few rows of the dataframe
+print(df.head())
+
+# Data Preprocessing
+
+# Find columns with NaN values
+columns_with_nans = df.columns[df.isna().any()].tolist()
+
+Explanation:
+df.isna() → marks missing values (NaNs) as True
+.any() → checks if any value in each column is True (i.e., has NaNs)
+df.columns[...] → selects column names where .any() is True
+.tolist() → converts column names from an index to a regular list
+
+# Print the names and number of columns with NaNs
+print("Columns with NaNs:", columns_with_nans)
+print("Number of columns with NaNs:", len(columns_with_nans))
+
+# List of numeric columns where we want to replace NaN values with 0
+# Note: Ideally, check with a domain expert if filling NaNs with 0 is appropriate for these columns
+numeric_columns = [
+    'dc_count', 'acos_tany', 'conting_count', 
+    'personal_loan_active', 'vehicle_loan_active',
+    'debit_amount_apr', 'credit_amount_apr', 'debit_count_apr',
+    'debit_amount_may', 'credit_amount_may', 'max_credit_amount_may',
+    'debit_amount_jun', 'credit_amount_jun', 'credit_count_jun', 
+    'debit_count_jun', 'max_credit_amount_jun'
+]
+
+# Fill NaN values with 0 in the specified numeric columns
+df[numeric_columns] = df[numeric_columns].fillna(0)
+
+# Find columns with NaN values after filling
+columns_with_nans = df.columns[df.isna().any()].tolist()
+
+# Print columns that still have NaNs and their count
+print("Columns with NaNs:", columns_with_nans)
+print("Number of columns with NaNs:", len(columns_with_nans))
+Output ->
+Columns with NaNs: ['loan_enq']
+Number of columns with nans: 1
+
+# Replace NaN values in the "loan_enq" column with 'N'
+df['loan_enq'].fillna('N', inplace=True)
+
+# Import necessary sklearn modules
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import train_test_split
+
+Setting train and test data ->
+
+# df has our data
+X = df.drop('cc_cons', axis=1)  # Features
+y = df['cc_cons']               # Target variable
+
+# Define numerical and categorical features
+numerical_cols = X.select_dtypes(include=['int64', 'float64']).columns.tolist()
+categorical_cols = ['account_type', 'gender', 'loan_enq']
+
+# Create preprocessing pipelines
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import train_test_split
+
+numerical_transformer = StandardScaler()
+categorical_transformer = OneHotEncoder(handle_unknown='ignore')
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numerical_transformer, numerical_cols),
+        ('cat', categorical_transformer, categorical_cols)
+    ])
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=0)
+
+# Print the first few rows of training features
+print(X_train.head())
+
+ColumnTransformer lets you apply different preprocessing steps to different groups of columns in your DataFrame.
+It takes a list called transformers where each item is a tuple:
+The first element is a name you give to this transformation (e.g., 'num' for numeric, 'cat' for categorical).
+The second element is the transformer object to apply (e.g., StandardScaler() for numeric, OneHotEncoder() for categorical).
+The third element is the list of column names to which this transformer should be applied (numerical_cols or categorical_cols).
+
+# Preview target variable
+y_train.head()
+
+# Apply the scaling and encoding transformations
+X_train = preprocessor.fit_transform(X_train)
+X_test = preprocessor.transform(X_test)
+
+fit_transform() -> Learns from X_train: Scales numerical columns using StandardScaler.
+Encodes categorical columns using OneHotEncoder.
+
+transform()     -> Does not learn anything new.
+Just uses the scaling and encoding learned from X_train to transform X_test.
+
+# Convert NumPy arrays to PyTorch tensors
+import torch
+
+X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
+y_train_tensor = torch.tensor(y_train.values.reshape(-1, 1), dtype=torch.float32)
+
+X_test_tensor = torch.tensor(X_test, dtype=torch.float32)
+y_test_tensor = torch.tensor(y_test.values.reshape(-1, 1), dtype=torch.float32)
+
+Note : y being only 1-D, we use reshape(-1,1) to convert to 2-D shape
+
+# Visualize the distribution of the target variable
+import matplotlib.pyplot as plt
+
+plt.hist(y_train_tensor.numpy(), bins=100)
+plt.title('Distribution of y_train (Credit Card Consumption)')
+plt.xlabel('cc_cons')
+plt.ylabel('Frequency')
+plt.show()
+
+Note : as we have y has long tail distribution, and the we are interested in true value or predicted value
+We do not have custom rsme loss function so we use python to create a custom loss function
+
+# Define a custom Root Mean Squared Logarithmic Error (RMSLE) function
+def rmsle(y_pred, y_true):
+    # Ensure predictions and targets are >= 1 to avoid log(0)
+    y_pred = torch.clamp(y_pred, min=0) + 1
+    y_true = torch.clamp(y_true, min=0) + 1
+
+    # Calculate log values
+    log_pred = torch.log(y_pred)
+    log_true = torch.log(y_true)
+
+    # Compute squared log error
+    squared_log_error = (log_pred - log_true) ** 2
+
+    # Compute mean and then root
+    mean_squared_log_error = torch.mean(squared_log_error)
+    rmsle = torch.sqrt(mean_squared_log_error)
+
+    return rmsle
+
+
+Now defining the neural network ->
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import TensorDataset, DataLoader
+import torch.optim as optim
+
+# Define a simple feedforward neural network
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        
+        # Define the Linear layers
+        self.fc1 = nn.Linear(X_test_tensor.shape[1], 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 32)
+        self.fc4 = nn.Linear(32, 1)
+
+    def forward(self, x):
+        # Apply activation functions after each linear layer
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        x = self.fc4(x)  # No activation here since it's a regression output
+        return x
+
+| Characteristic                | Your Model                            |
+| ----------------------------- | ------------------------------------- |
+| **Type**                      | Feedforward Neural Network            |
+| **Use case**                  | Regression (predicting `cc_cons`)     |
+| **Activation function**       | ReLU for hidden layers                |
+| **Output activation**         | None (raw output for regression)      |
+| **Fully connected?**          | Yes (each layer uses `nn.Linear`)     |
+| **Depth (layers)**            | 4 linear layers (3 hidden + 1 output) |
+| **Width (neurons per layer)** | 128 → 64 → 32 → 1                     |
+
+from torch.utils.data import TensorDataset, DataLoader
+
+# Wrap training data in a TensorDataset
+train_data = TensorDataset(X_train_tensor, y_train_tensor)
+
+# Initialize model
+model = Net()
+
+# Define optimizer
+optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+
+# Loss tracking
+train_loss_list = []
+test_loss_list = []
+
+# Training parameters
+num_epochs = 30
+train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
+
+# Training loop
+for epoch in range(num_epochs):
+    model.train()
+    
+    for X_batch, y_batch in train_loader:
+        # Forward pass
+        pred = model(X_batch)
+        loss = rmsle(pred, y_batch)
+        
+        # Backward pass and optimization
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    
+    # Calculate training and test loss after each epoch
+    model.eval()
+    with torch.no_grad():
+        train_loss = rmsle(model(X_train_tensor), y_train_tensor).item()
+        test_loss = rmsle(model(X_test_tensor), y_test_tensor).item()
+    
+    train_loss_list.append(train_loss)
+    test_loss_list.append(test_loss)
+    
+    # Print every 5 epochs
+    if (epoch + 1) % 5 == 0:
+        print(f'Epoch {epoch+1}: Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}')
+
+Plotting the grapgh for train and test loss ->
+import matplotlib.pyplot as plt
+
+plt.plot(range(num_epochs), train_loss_list, label='Train')
+plt.plot(range(num_epochs), test_loss_list, label='Test')
+plt.xlabel('Epoch')
+plt.ylabel('RMSLE Loss')
+plt.title('Training vs Test Loss over Epochs')
+plt.legend()
+plt.show()
+
+note : shows us that the loss is not decreasing after 5 epochs, so we use a bigger network and we use bigger batch size and 'Adam'
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        
+        # Define four fully connected layers
+        self.fc1 = nn.Linear(X_test_tensor.shape[1], 512)
+        self.fc2 = nn.Linear(512, 128)
+        self.fc3 = nn.Linear(128, 32)
+        self.fc4 = nn.Linear(32, 1)
+
+    def forward(self, x):
+        # Apply ReLU activation after each hidden layer
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        x = self.fc4(x)  # No activation at output (regression)
+        return x
+
+| **Component**    | **Description**                                                                                             |
+| ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| `Net(nn.Module)` | Defines a neural network class inheriting from PyTorch's `nn.Module`.                                       |
+| `__init__`       | Constructor initializing four fully connected layers (`fc1` to `fc4`).                                      |
+| `fc1`            | Linear layer: input features → 512 neurons.                                                                 |
+| `fc2`            | Linear layer: 512 neurons → 128 neurons.                                                                    |
+| `fc3`            | Linear layer: 128 neurons → 32 neurons.                                                                     |
+| `fc4`            | Linear layer: 32 neurons → 1 output (regression target).                                                    |
+| `forward(x)`     | Defines forward pass: applies ReLU after each hidden layer, no activation on output layer (for regression). |
+
+model = Net()
+optimizer = optim.Adam(model.parameters())  # Fixed missing parentheses
+train_loss_list = []
+test_loss_list = []
+num_epochs = 30
+train_loader = DataLoader(train_data, batch_size=128, shuffle=True)
+
+for epoch in range(num_epochs):
+    for X_batch, y_batch in train_loader:
+        # Forward pass
+        pred = model(X_batch)
+        loss = rmsle(pred, y_batch)
+
+        # Backward pass and optimization
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    # Calculate losses for full training and test sets after each epoch
+    train_loss = rmsle(model(X_train_tensor), Y_train_tensor).item()
+    test_loss = rmsle(model(X_test_tensor), Y_test_tensor).item()
+
+    train_loss_list.append(train_loss)
+    test_loss_list.append(test_loss)
+
+    if (epoch + 1) % 5 == 0:
+        print(f'Epoch {epoch+1}: Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}')
+
+import matplotlib.pyplot as plt
+
+plt.plot(range(num_epochs), train_loss_list, label='Train Loss')
+plt.plot(range(num_epochs), test_loss_list, label='Test Loss')
+plt.xlabel('Epoch')
+plt.ylabel('RMSLE Loss')
+plt.legend()
+plt.title('Training vs Test Loss over Epochs')
+plt.show()
+
+Note : this still gives a very less difference between the epoch v/s loss , so wehave use a even bigger
+model architecture , and more number of epochs, we can use different activation function and also change the learning rates 
+for better performance.
 
