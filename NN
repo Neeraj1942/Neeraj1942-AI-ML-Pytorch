@@ -105,10 +105,92 @@ Regression ->
 1. Mean Squared Error
 if outliers exists -> then we use MAE( Mean absolute error) , Ex : realtime time for delivery.
 
-Example ->
+Example -> Predict the gpa of students, from their high school gpa's and sat scores.
+we have to convert our data into numpy format because it can later be converted to tensor and used for deep learning.
+
+ X = data[['a', 'b']].values
+output :
+[[1 4]
+ [2 5]
+ [3 6]]
+
+X = data['c'].values 
+output :
+array([7, 8, 9, 10, 11])  # shape: (5,)
+
+X = data['c'].values.reshape(-1, 1)
+output :
+array([[7],
+       [8],
+       [9],
+       [10],
+       [11]])  # shape: (5, 1)
+
+Steps ->
+Load Dataset
+Data Preprocessing 
+Convert the data into tensors
+
+Bulding the model ->
+import torch.nn as nn
+
+Building model with 2 neurons ->
+model = nn.Sequential(
+nn.Linear(2,2)       ->  # input layer: 2 features to 2 neurons
+nn.Sigmoid(),        ->  # activation function
+nn.Linear(2,1)       ->  # output layer: 2 neurons to 1 output 
+)
+Note : output of hidden layer should match the input size of the output layer
+
+Forward propogation ->
+preds = model(X_train_tensor)
+preds[:5]
+
+from torch.nn import MSEloss 
+
+Calculating loss ->
+criterion = MSELoss()
+loss = criterion(preds,y_train_tensor)
+print(loss)
+
+Note : Loss of 0-5 is good for MSE, more than that is very high
+
+Comparing predictions on X_train with target(y_train_tensor) ->
+preds[:5]
+y_train_tensor[:5]
+model[0].weight -> input to hidden ( 0:Linear) 
+model[2].weight -> hidden to output( 2: Linear)
+model[1] ->  activation function , no weights attached instead it uses mathematical conversion to the input data to introduce non-linearlity.
 
 
- 
+Optimizing the errors -> (Minimizing the loss)
+Gradient Descent ->
+When plotted a gragh - loss function ( y-axis) and weights (x -axis)
+New weight = old weight – (learning rate) × slope (gradient)
+this helps us to converge to the point where the error is zero
+
+Stop when ->
+1. new weight = old weight ( i.e slope is 0)
+2. Number of iteration =1000 ( then we can check the closest point with less error and use that)
+Note : normally learning rate = 0.001
+
+New weight = old weight – (learning rate) × slope (gradient)
+New bias = old bias – (learning rate) × slope (gradient)
+
+dl/dw = 2*u(mean)*xi = 2((w*xi +b) -y*xi)
+dl/dB = 2u = 2(w(old) * X + b) - y
+
+For multiple layes (i.e 2 hidden layers)->
+| **Weights:** Input Layer                                                      | **Weights:** From Hidden Layer                                                | **Bias Terms**                                                          |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| $w_{11}^1(\text{new}) = w_{11}^1 - \eta \frac{\partial L}{\partial w_{11}^1}$ | $w_{11}^2(\text{new}) = w_{11}^2 - \eta \frac{\partial L}{\partial w_{11}^2}$ | $b_{11}(\text{new}) = b_{11} - \eta \frac{\partial L}{\partial b_{11}}$ |
+| $w_{12}^1(\text{new}) = w_{12}^1 - \eta \frac{\partial L}{\partial w_{12}^1}$ | $w_{21}^2(\text{new}) = w_{21}^2 - \eta \frac{\partial L}{\partial w_{21}^2}$ | $b_{12}(\text{new}) = b_{12} - \eta \frac{\partial L}{\partial b_{12}}$ |
+| $w_{21}^1(\text{new}) = w_{21}^1 - \eta \frac{\partial L}{\partial w_{21}^1}$ |                                                                               | $b_{21}(\text{new}) = b_{21} - \eta \frac{\partial L}{\partial b_{21}}$ |
+| $w_{22}^1(\text{new}) = w_{22}^1 - \eta \frac{\partial L}{\partial w_{22}^1}$ |                                                                               |                                                                         |
+
+
+
+
 
 
 
