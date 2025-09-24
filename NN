@@ -181,14 +181,12 @@ dl/dw = 2*u(mean)*xi = 2((w*xi +b) -y*xi)
 dl/dB = 2u = 2(w(old) * X + b) - y
 
 For multiple layes (i.e 2 hidden layers)->
-| **Weights:** Input Layer                                                      | **Weights:** From Hidden Layer                                                | **Bias Terms**                                                          |
-| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| $w_{11}^1(\text{new}) = w_{11}^1 - \eta \frac{\partial L}{\partial w_{11}^1}$ | $w_{11}^2(\text{new}) = w_{11}^2 - \eta \frac{\partial L}{\partial w_{11}^2}$ | $b_{11}(\text{new}) = b_{11} - \eta \frac{\partial L}{\partial b_{11}}$ |
-| $w_{12}^1(\text{new}) = w_{12}^1 - \eta \frac{\partial L}{\partial w_{12}^1}$ | $w_{21}^2(\text{new}) = w_{21}^2 - \eta \frac{\partial L}{\partial w_{21}^2}$ | $b_{12}(\text{new}) = b_{12} - \eta \frac{\partial L}{\partial b_{12}}$ |
-| $w_{21}^1(\text{new}) = w_{21}^1 - \eta \frac{\partial L}{\partial w_{21}^1}$ |                                                                               | $b_{21}(\text{new}) = b_{21} - \eta \frac{\partial L}{\partial b_{21}}$ |
-| $w_{22}^1(\text{new}) = w_{22}^1 - \eta \frac{\partial L}{\partial w_{22}^1}$ |                                                                               |                                                                         |
-
-
+| **Weights: Input Layer**                                                     | **Weights: From Hidden Layer**                                               | **Bias Terms**                                                          |
+|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| \( w_{11}^1(\text{new}) = w_{11}^1 - \eta \frac{\partial L}{\partial w_{11}^1} \) | \( w_{11}^2(\text{new}) = w_{11}^2 - \eta \frac{\partial L}{\partial w_{11}^2} \) | \( b_{11}(\text{new}) = b_{11} - \eta \frac{\partial L}{\partial b_{11}} \) |
+| \( w_{12}^1(\text{new}) = w_{12}^1 - \eta \frac{\partial L}{\partial w_{12}^1} \) | \( w_{21}^2(\text{new}) = w_{21}^2 - \eta \frac{\partial L}{\partial w_{21}^2} \) | \( b_{12}(\text{new}) = b_{12} - \eta \frac{\partial L}{\partial b_{12}} \) |
+| \( w_{21}^1(\text{new}) = w_{21}^1 - \eta \frac{\partial L}{\partial w_{21}^1} \) |                                                                             | \( b_{21}(\text{new}) = b_{21} - \eta \frac{\partial L}{\partial b_{21}} \) |
+| \( w_{22}^1(\text{new}) = w_{22}^1 - \eta \frac{\partial L}{\partial w_{22}^1} \) |                                                                             |                                                                         |
 
 
 
