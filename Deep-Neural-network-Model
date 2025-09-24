@@ -328,3 +328,32 @@ Note : this still gives a very less difference between the epoch v/s loss , so w
 model architecture , and more number of epochs, we can use different activation function and also change the learning rates 
 for better performance.
 
+Question ->
+Calculate the number of parameters in a neural network with 3 input nodes, 
+2 hidden layers (first with 3 neurons, second with 2 neurons), and an output layer with 1 neuron. (Input required from learner)
+Answers ->
+Input layer → Hidden Layer 1 (3 neurons):
+Parameters = (input_nodes × neurons) + biases
+= (3 × 3) + 3 = 9 + 3 = 12
+
+Hidden Layer 1 → Hidden Layer 2 (2 neurons):
+Parameters = (neurons_in_layer1 × neurons_in_layer2) + biases
+= (3 × 2) + 2 = 6 + 2 = 8
+
+Hidden Layer 2 → Output Layer (1 neuron):
+Parameters = (neurons_in_layer2 × output_neurons) + biases
+= (2 × 1) + 1 = 2 + 1 = 3
+
+Notes :
+For deep learning tasks where the target variable is continuous (i.e., regression problems), 
+both MSE (Mean Squared Error) and MAE (Mean Absolute Error) are commonly used loss functions.
+
+Note :
+The weights are updated using gradient descent during backpropagation. 
+This means we take the current weights and subtract the gradient of the loss 
+(how much the loss changes with respect to each weight)  multiplied by the learning rate. 
+This helps the model reduce the error step by step by moving the weights in the direction 
+that makes the loss smaller.
+ -> w_new = w_old - learning_rate * (dL/dw) 
+
+
