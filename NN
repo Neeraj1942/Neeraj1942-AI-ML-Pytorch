@@ -29,3 +29,57 @@ Applications of deep learning ->
 Language interpretations - > Google assistance, chatgpt
 Recommendation systems -> spotify, netflix
 Image recognition and computer vision -> face id , tesla autopilot
+
+Terminology ->
+Nodes : Basic processing unit of any neural network
+Layer : Is an group of nodes performing the same task.
+Input layer, Hidden layer, Output layer
+
+-> Binary classification/ Regression has only 1 output node. 
+-> Multi classification has as many as the class has in the output node.
+Depth of a neural network : number of hidden layers
+
+forward propogation : weights * input + bias at each step and acrtivation function , so on till the output. 
+backward progration : error is added and feed-back to the previous layers then we use that for backward propogation, till the input.
+                    : so they also help in uodating the weights accordingly to get the best accuracy.
+
+1 cycle : 1 forward propogation and 1 backward progration makes 1 cycle.
+Now the NN is ready for actual prediction.
+
+Deep learning frameworks ->
+1. Designed for scalability : Managing large datasets with ease
+2. Updates : Ensuring users stay up-to-date with the latest features.
+Examples ->
+1. TensorFlow - Ml and Dl models. , 2. Pytorch - Computer vision and NLP.
+
+Using Pytorch ->
+
+Importing libraries ->
+import torch
+import torch.nn as nn
+
+inputs to neurons ->
+inputs = torch.tensor([3.0, 2.0, -1.0])
+
+Creating a neuron ->
+neuron = nn.Linear(in_features = 3, out_features = 1)
+output = neurons(inputs)
+
+Printing the output neurons ->
+print(output) 
+
+neuron weight ->
+neuron.weight
+
+neuron bias ->
+neuron.bias
+
+Formula for the final output of the neuron ->
+neuron.weight@inputs.T + neurons.bias       (.T stands for transpose -> 1*3 .T goes to 3*1 , weights - 1*3 , output - 1 )
+
+We can eityher use matmul() -> torch.matmul() or '@' both are used for matriz multiplication
+Using matmul -> torch.matmul(neuron.weight, input) + neuron.bias 
+
+
+
+
