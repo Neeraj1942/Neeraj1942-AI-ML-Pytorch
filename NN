@@ -181,13 +181,69 @@ dl/dw = 2*u(mean)*xi = 2((w*xi +b) -y*xi)
 dl/dB = 2u = 2(w(old) * X + b) - y
 
 For multiple layes (i.e 2 hidden layers)->
-| **Weights: Input Layer**                                                     | **Weights: From Hidden Layer**                                               | **Bias Terms**                                                          |
-|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| \( w_{11}^1(\text{new}) = w_{11}^1 - \eta \frac{\partial L}{\partial w_{11}^1} \) | \( w_{11}^2(\text{new}) = w_{11}^2 - \eta \frac{\partial L}{\partial w_{11}^2} \) | \( b_{11}(\text{new}) = b_{11} - \eta \frac{\partial L}{\partial b_{11}} \) |
-| \( w_{12}^1(\text{new}) = w_{12}^1 - \eta \frac{\partial L}{\partial w_{12}^1} \) | \( w_{21}^2(\text{new}) = w_{21}^2 - \eta \frac{\partial L}{\partial w_{21}^2} \) | \( b_{12}(\text{new}) = b_{12} - \eta \frac{\partial L}{\partial b_{12}} \) |
-| \( w_{21}^1(\text{new}) = w_{21}^1 - \eta \frac{\partial L}{\partial w_{21}^1} \) |                                                                             | \( b_{21}(\text{new}) = b_{21} - \eta \frac{\partial L}{\partial b_{21}} \) |
-| \( w_{22}^1(\text{new}) = w_{22}^1 - \eta \frac{\partial L}{\partial w_{22}^1} \) |                                                                             |                                                                         |
+| **Weights: Input Layer**                                                      | **Weights: From Hidden Layer**                                                | **Bias Terms**                                                          |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| $w_{11}^1(\text{new}) = w_{11}^1 - \eta \frac{\partial L}{\partial w_{11}^1}$ | $w_{11}^2(\text{new}) = w_{11}^2 - \eta \frac{\partial L}{\partial w_{11}^2}$ | $b_{11}(\text{new}) = b_{11} - \eta \frac{\partial L}{\partial b_{11}}$ |
+| $w_{12}^1(\text{new}) = w_{12}^1 - \eta \frac{\partial L}{\partial w_{12}^1}$ | $w_{21}^2(\text{new}) = w_{21}^2 - \eta \frac{\partial L}{\partial w_{21}^2}$ | $b_{12}(\text{new}) = b_{12} - \eta \frac{\partial L}{\partial b_{12}}$ |
+| $w_{21}^1(\text{new}) = w_{21}^1 - \eta \frac{\partial L}{\partial w_{21}^1}$ |                                                                               | $b_{21}(\text{new}) = b_{21} - \eta \frac{\partial L}{\partial b_{21}}$ |
+| $w_{22}^1(\text{new}) = w_{22}^1 - \eta \frac{\partial L}{\partial w_{22}^1}$ |                                                                               |                                                                         |
 
+Types of Gradient descent ->
+1. Stochastic 
+2. Batch
+3. Mini-Batch
+
+1 epoch : Each sample has gone thrpugh one pass of forward and backward propogation.
+'m' -> number of samples in a dataset
+if we have 50 -> m's , then we use 10 epochs means -> 50 *10 = 500 times 
+1. Stochastic -> 
+1. add a shuffle parameter before selection of the records
+2. improved model performace beacause of the frequent updation of weights and biases
+3. updating the weights based on just one sample can result in fluctuations in loss value.
+
+2.Batch gradient descent ->
+we use all the records in the dataset for forward propogation, use the aggregated loss value to update the weights.
+more stable and less frequent updates 
+i.e 50 samples, 10 epochs we will be updating the weights just 10 times.
+Advantages ->
+ computational efficiency, Stable Error gradient, Faster convergence
+Dis ->
+would need several epochs for training, requires the full data memory everytime, less scalability.
+
+3. Mini-Batch gradient descent ->
+Divides the training dataset into subsets
+Then, forward propogation on the subset, loss function, updates the weights of the model based on the subset.
+i.e 50 samples 10 batches -> 5 subsets, 5 epochs = 25 times
+Note : Mini batch size of 2^n is preffered
+
+Implementation on code ->
+import torch.optic as optim 
+optimizer = optim.SGD(model.parameter(), lr = 0.001)
+
+torch.optim is PyTorch’s built-in optimization module. It provides many optimizers (like SGD, Adam, RMSprop)
+used for training neural networks via gradient descent.
+
+optim.SGD is an implementation of Stochastic Gradient Descent (SGD)
+
+loss.backwards()   # Compute new gradients
+optimizer.step()   # Update weights
+model[0].weight
+model[2].weight
+
+from torch.utils.data import TensorDataset, DataLoader
+train_data = TensorDataset(X_train_tensor, y_train_tensor)
+model = nn.Sequential(
+nn.Linear(2,2)       ->  # input layer: 2 features to 2 neurons
+nn.Sigmoid(),        ->  # activation function
+nn.Linear(2,1)       ->  # output layer: 2 neurons to 1 output 
+)
+
+from torch.nn import MSEloss
+criterion = MSELoss()
+
+train_loss = criterion(model(X_train_tensor), y_train_tensor).item()
+test_loss = criterion(model(X_test_tensor), y_test_tensor).item()
+printf(f'Without training :\n Train Loss : {train_loss : .4f}, Test Loss : {test_loss:.4f}')
 
 
 
