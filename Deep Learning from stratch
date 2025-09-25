@@ -28,3 +28,16 @@ Note : For binary classification problem a single layer in the output is enough 
 
 Forward propogation ->
 Y =W(t) * X -> X is inout, W(t) is weights, also the bias is added here.
+Example -> (4 input, 5 hidden ,1 output) -> (4 classes with 6 observations each as input) (output is 1 class with 6 observations)
+X     -> 4 * 6
+W(ih) -> 4 * 5  
+B(ih) -> 5 * 1 (5,) -> 2d numpy array
+-> Z(1) =W(ih)T * X + B(ih)  -> 5 * 6 
+-> h(1) = sigmoid(Z(1))      -> 5 * 6 
+
+Z(2) = W(ho)T * h(1) + B(ho) -> 1 * 6 
+O = sigmoid(Z(2))  -> 1 * 6
+
+Backward propogation ->
+
+
