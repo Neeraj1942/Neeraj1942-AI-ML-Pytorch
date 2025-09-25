@@ -6,4 +6,25 @@ In training a neural network, you notice that the loss does not decrease in the 
 | II. Regularization parameter high | ✅ Yes                        |
 | III. Stuck in local minimum       | ✅ Yes                        |
 
+Note : In backwards propogation weights and biases can be updated!
 
+To manually check the good weights and bias for less error ->
+we plot the cost function/loss function v/s weight /bias graph to check the minima.
+
+Important factors to reach the local minima ->
+1. In which direction should I move ?
+2. How much should I move ?
+
+Here, gradient descent is helpful -> (cost/loss in y-axis , and weight/bias in x-axis)
+w = w - learning rate * diff(E)/diff(w) -> diff of Error/weight
+diff(E)/diff(w) -> +ve or -ve tell us which direction to move in.
+                -> value of it tells us how much we should move in that direction.
+
+Factors to stop the gradient descent ->
+1. If the Error is not updating.
+2. Number of iterations/epochs are reached.
+
+Note : For binary classification problem a single layer in the output is enough for the problem.
+
+Forward propogation ->
+Y =W(t) * X -> X is inout, W(t) is weights, also the bias is added here.
