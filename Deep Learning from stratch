@@ -38,6 +38,13 @@ B(ih) -> 5 * 1 (5,) -> 2d numpy array
 Z(2) = W(ho)T * h(1) + B(ho) -> 1 * 6 
 O = sigmoid(Z(2))  -> 1 * 6
 
-Backward propogation ->
+Backward propogation -> desktop-> analytics vidya -> saved in neural networds -> pdf file 
 
+Numpy steps to build the model ->
+1. Loading the dataset (Input and Output)
+2. Architecture of the model (# input, hidden and output neurons)
+3. Initializing the weights for all the layers
+4. Implementing forward propagation
+5. Implementing backward propagation
+6. Train the model for n epochs
 
