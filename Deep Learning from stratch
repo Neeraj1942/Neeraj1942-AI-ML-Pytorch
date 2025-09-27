@@ -89,5 +89,42 @@ output  = [0.9, 0.1, 0.8, 0.3, 0.7, 0.2]
 error = (y - output)² / 2
       = [0.005, 0.005, 0.02, 0.045, 0.045, 0.02]  # shape: (1, 6) -> here the avarage of these error list is taken / per epoch 
 
+Activation Function -> if not used then it is set to linear function, cannot be used for any other complex patterns.
+1. Linear -> used mostly at the ouput layer for a regression problem. 
+input  -> - infi to + infi
+output -> - infi to + infi
+
+2. Sigmoid -> used mostly at the ouput layer for a probability in classification problem. 
+input  -> - infi to + infi
+output ->  0 to 1
+
+3. Tanh -> faster than sigmoid
+input  -> - infi to + infi
+output ->  -1 to 1
+
+4. ReLu -> Not differentiable at x = 0 
+input  -> - infi to + infi
+output ->  0 to + infi
+Derivative -> 0.01 (x <=0) 1 (x>0) not defined (x = 0)
+
+5. ReLu leaky -> used mostly at the ouput layer for a probability in classification problem. 
+input  -> - infi to + infi
+output ->  0.01x(when -ve) to x
+Derivative -> 0.01 (x <=0) 1 (x>0)
+
+In case we have more than 1 output ( i.e we have 3 classes output neurons) 
+to get a realtion between them we use softmax activation function so that they are relative to each other.(this is help to better predict the neuron)
+6. Softmax -> used mostly at the ouput layer for a probability in multi class classification problem. 
+Formula =  e^(Zi)/ summation of e^(Zi) -> (and the summation of zi =1 )
+Sum of probabilities of a softmax function is 1.
+input  -> - infi to + infi
+| Property                 | Explanation                                        |
+| ------------------------ | -------------------------------------------------- |
+| Output range             | Each value is in **(0, 1)** (exclusive)            |
+| All outputs add to 1     | (\sum_{i=1}^n \text{softmax}(z_i) = 1)             |
+| Represents probabilities | Can be interpreted as **confidence** in each class |
+| Most confident class     | Has the **highest softmax score**                  |
+
+Note : Hidden layers ReLu > tanh ( i.e ReLu is more preffered)
 
 
