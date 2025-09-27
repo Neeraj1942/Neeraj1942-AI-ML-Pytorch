@@ -220,3 +220,21 @@ We also update the gradients ( b ,1-b) ,and also the,(using 2 momentums)
     # updating the weights
     w_ho = w_ho - new_lr_o * v_ho
     w_ih = w_ih - new_lr_h * v_ih
+
+Loss Function ->
+Regression models ->
+1. MSE(Mean Squared Error) -> regression model, and continous data.
+2. MAEMean Adsolute Error) 
+3. RMSE (Root Mean Squared Error)
+
+Classification models ->
+1. Binary Cross Entropy/Log loss ->
+2. Categorical Cross Entropy     ->
+You have multi-class classification (atleast more than 2)
+Only one correct class per sample (i.e., one-hot labels)
+
+Note : We take log of both classes because, 
+small penalties for less differences and more penalties for large differences.(gives a clearer picture)
+
+
+
