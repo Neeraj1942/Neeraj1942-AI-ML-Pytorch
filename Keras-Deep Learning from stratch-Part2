@@ -57,5 +57,111 @@ Saving the preprocessed data ->
 data.to_csv('loan_prediction_data.csv', index=False)
 index= False -> ❌ Don't write the row index (0, 1, 2, ...) as a separate column in the CSV.
 
+Next Steps ->
+1. Loading the dataset
+2. Creating a train and test split
+3. Defining the architecture
+4. Compiling the model(defining loss/cost function , optimizer)
+5. Training the model
+6. Evaluating model performance
+
+# removing the loan_ID since these are just the unique values
+data = data.drop('Loan_ID', axis=1)
+
+seperating the dependent and independent, 'Loan_Status' ->dependent = y
+
+Using keras.models ->
+Sequential -> step by step 
+Functional -> more complex used for APIs
+
+# importing different layers from keras
+from keras.layers import InputLayer, Dense 
+InputLayer -> Explicitly defines the input shape to the model
+Dense -> | Parameter     | Meaning                                                        |
+| ------------- | -------------------------------------------------------------- |
+| `units`       | Number of neurons in this layer (required)                     |
+| `activation`  | Activation function (`'relu'`, `'sigmoid'`, `'softmax'`, etc.) |
+| `use_bias`    | Whether to include a bias term (default: `True`)               |
+| `input_shape` | Required only in the first layer (or use `Input`)              |
+
+Input -> input_neurons = X_train.shape[1]
+output_neurons = 1
+number_of_hidden_layers = 2
+neuron_hidden_layer_1 = 10
+neuron_hidden_layer_2 = 5
+| Layer                           | Weights | Biases | Total   |
+| ------------------------------- | ------- | ------ | ------- |
+| Input → Hidden Layer 1          | 110     | 10     | 120     |
+| Hidden Layer 1 → Hidden Layer 2 | 50      | 5      | 55      |
+| Hidden Layer 2 → Output         | 5       | 1      | 6       |
+| **Total**                       |         |        | **181** |
+
+
+input_shape=(input_neurons,) -> You’re telling the model that the input will be a 1D array (vector) with input_neurons values.
+units = Number of neurons in the layer
+activation='relu' -> activation function
+
+model = Sequential()
+model.add(InputLayer(input_shape=(input_neurons,)))
+model.add(Dense(units=neuron_hidden_layer_1, activation='relu'))
+model.add(Dense(units=neuron_hidden_layer_2, activation='relu'))
+model.add(Dense(units=output_neurons, activation='sigmoid'))
+
+then to check the model -> model.summary()
+None represents the batch size — which is not fixed at model definition time.
+
+model.compile(loss='binary_crossentropy',optimizer='Adam',metrics=['accuracy'])
+| Argument    | Purpose                        | Explanation                                    |
+| ----------- | ------------------------------ | ---------------------------------------------- |
+| `loss`      | Objective function to minimize | Binary cross-entropy for binary classes        |
+| `optimizer` | Algorithm to update weights    | Adam optimizer, adaptive and efficient         |
+| `metrics`   | Performance indicators         | Accuracy to monitor classification performance |
+
+# getting predictions for the validation set
+prediction = np.where(model.predict(X_test) < 0.5, 0,1)
+-> np.where(condition, x, y)
+-> model.predict() is a method in Keras used to get the predictions from your trained model.
+It takes input data and outputs the model’s prediction values based on the learned weights.
+
+Note : model.predict() and the final Dense layer connect:
+model.add(Dense(units=output_neurons, activation='sigmoid'))
+This defines the last layer of your neural network.
+For binary classification, units=1 (one output neuron).
+The sigmoid activation squashes the output to a value between 0 and 1 — interpreted as a probability for the positive class.
+
+# calculating the accuracy on validation set
+accuracy_score(y_test, prediction)
+accuracy_score() is a separate function from scikit-learn, which you use after training to evaluate predictions
+
+model.compile(loss='binary_crossentropy',optimizer='Adam',metrics=['accuracy'])
+model_history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=50)
+
+plt.plot(model_history.history['loss'])
+plt.plot(model_history.history['val_loss'])
+plt.plot(model_history.history['acc'])
+plt.plot(model_history.history['val_acc'])
+
+model_history.history keys are fixed by Keras, based on the metric names 
+(loss, val_loss, accuracy, val_accuracy, etc.)
+
+| Key                             | Meaning                                                                           |
+| ------------------------------- | --------------------------------------------------------------------------------- |
+| `'loss'`                        | The **training loss** at the end of each epoch                                    |
+| `'val_loss'`                    | The **validation loss** at the end of each epoch (if validation data is provided) |
+| `'acc'` or `'accuracy'`         | The **training accuracy** at the end of each epoch                                |
+| `'val_acc'` or `'val_accuracy'` | The **validation accuracy** at the end of each epoch                              |
+
+loss,val_loss -> loss = 'binary_crossentropy' in model.compile ,called by model_history.history[]
+accuracy,val_accuracy -> model_history.history[], acc = no of correct samples/total number of samples
+
+model_history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=50)
+output -> 
+16/16 ━━━━━━━━━━━━━━━━━━━━ 0s 5ms/step - accuracy: 0.5023 - loss: 0.6934 - val_accuracy: 0.7073 - val_loss: 0.6531
+Epoch 2/50
+16/16 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - accuracy: 0.6862 - loss: 0.6579 - val_accuracy: 0.6992 - val_loss: 0.6256
+Epoch 3/50
+16/16 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - accuracy: 0.7094 - loss: 0.6188 - val_accuracy: 0.6911 - val_loss: 0.6086
+Epoch 4/50
+16/16 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - accuracy: 0.7027 - loss: 0.6055 - val_accuracy: 0.6911 - val_loss: 0.5997
 
 
