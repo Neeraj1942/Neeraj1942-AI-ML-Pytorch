@@ -48,7 +48,7 @@ Numpy steps to build the model ->
 5. Implementing backward propagation
 6. Train the model for n epochs
 
-
+Analytics Vidya/Neural Network/Neural_Network_from_scratch_using_NumPy.ipynb
 CODE -> (Imp terms)
 np.random.uniform(low=0.0, high=1.0, size=(...)) -> 
 generates random numbers from a uniform distribution, which means:
