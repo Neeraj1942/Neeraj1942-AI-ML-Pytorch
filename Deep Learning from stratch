@@ -158,5 +158,20 @@ Refer table for better understanding ->
 | **Mini-Batch** | Small batch (e.g. 32) | N / batch size    | Balanced, fast & stable           | Needs batch size tuning         |1000
 
 
+1. To avoid getting stuck at local minima we use gradient descent with momentum. 
+(i.e example of a ball, even though the ball reaches local minima it still has some past speed to it which helps it to bounce back, this is used in the momentum concept)
+Implementation in the above code is - >
+ # weighted gradient
+    v_ho = beta * v_ho + (1-beta)*error_wrt_who
+    w_ho = w_ho - lr * v_ho
+    v_ih = beta * v_ih + (1-beta)*error_wrt_wih
+    w_ih = w_ih - lr * v_ih
+
+where as the regular without momemtum looks like ->
+    # updating the weights between hidden and output layer
+    w_ho = w_ho - lr * error_wrt_who
+    # updating the weights between input and hidden layer
+    w_ih = w_ih - lr * error_wrt_wih
+
 
 
