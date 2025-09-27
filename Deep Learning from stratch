@@ -127,4 +127,36 @@ input  -> - infi to + infi
 
 Note : Hidden layers ReLu > tanh ( i.e ReLu is more preffered)
 
+1. Stochastic -> 
+1. Only one onservation at one time is taken, and so on for the rest
+2.add a shuffle parameter before selection of the records
+3. improved model performace beacause of the frequent updation of weights and biases
+4. updating the weights based on just one sample can result in fluctuations in loss value.
+
+2.Batch gradient descent ->
+all observations at once.
+we use all the records in the dataset for forward propogation, use the aggregated loss value to update the weights.
+more stable and less frequent updates 
+i.e 50 samples, 10 epochs we will be updating the weights just 10 times.
+Advantages ->
+ computational efficiency, Stable Error gradient, Faster convergence
+Dis ->
+would need several epochs for training, requires the full data memory everytime, less scalability.
+
+3. Mini-Batch gradient descent ->
+Divides the training dataset into subsets
+Then, forward propogation on the subset, loss function, updates the weights of the model based on the subset.
+i.e 50 samples 10 batches -> 5 subsets, 5 epochs = 25 times
+Note : Mini batch size of 2^n is preffered
+
+Refer table for better understanding ->
+( inputs size : 100, epochs : 100, batch size : 10(mini batch)) 
+| Type           | Data Used per Update  | Updates per Epoch | Pros                              | Cons                            | Updates 
+| -------------- | --------------------- | ----------------- | --------------------------------- | ------------------------------- |
+| **SGD**        | 1 sample              | N (1 per sample)  | Fast updates, low memory          | Noisy updates, less stable      |10000
+| **Batch**      | All data              | 1                 | Stable, efficient with small data | Needs full memory, slow updates |100
+| **Mini-Batch** | Small batch (e.g. 32) | N / batch size    | Balanced, fast & stable           | Needs batch size tuning         |1000
+
+
+
 
