@@ -34,7 +34,28 @@ check if the loan is approved or not
 2. Convert the categorical to number
 3. Scale all the data b/w 0 and 1
 
+data.isnull().sum() -> checks the NAN values and returns a sum of those in each class
+data.dtypes -> return the data types of the variable
 
+data['Gender'].fillna(data['Gender'].mode()[0], inplace=True)
+-> replaces NAN with mode of the data with, in place without creating a new class
+
+for continuous data ->
+data['LoanAmount'].fillna(data['LoanAmount'].mean(), inplace=True) 
+-> fill the mean value with the loan amount, that to in place of the class, no new class.
+
+Converting the categorical columns into numbers ->
+data['Gender'] = data['Gender'].map({'Male': 0, 'Female': 1})
+data['Married'] = data['Married'].map({'No': 0, 'Yes': 1})
+
+Scaling all the values b/w o and 1
+# applying for loop to bring all the variables in range 0 to 1
+for i in data.columns[1:]:
+    data[i] = (data[i] - data[i].min()) / (data[i].max() - data[i].min())
+
+Saving the preprocessed data ->
+data.to_csv('loan_prediction_data.csv', index=False)
+index= False -> ❌ Don't write the row index (0, 1, 2, ...) as a separate column in the CSV.
 
 
 
