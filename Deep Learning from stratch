@@ -174,4 +174,45 @@ where as the regular without momemtum looks like ->
     w_ih = w_ih - lr * error_wrt_wih
 
 
+2. Now we have issue with the learning rate, where if it is fixed, it forces 
+(i.e some variables might lead to faster convergence) but same learning rate forces them to sync, which causes slower convergence.
+to overcome this we use, we have to update the learning rate as per the cost function. (slope = rate of change of cost function)
+we use the squared slope ( squared -> to avoid -ve slopes) to update the learning rate.
+(slope square) = sum of square of the slope from i=1 to the point -1.
+we use alpha/root of (slope square) + error(verysmall) -> the error is included to deal cases with very high learning rate with will make the new weight = old weight)
+when the square of gradients is low -> the learning rate is high, which takes a bigger step. also vice versa
 
+ # weighted squared gradients
+    u_ih = beta * u_ih + (1-beta) * np.square(error_wrt_wih)
+    u_ho = beta * u_ho + (1-beta) * np.square(error_wrt_who)
+    
+    # new learning rates
+    new_lr_o = lr / np.sqrt(u_ho.sum())
+    new_lr_h = lr / np.sqrt(u_ih.sum())
+
+    # updating the parameters
+    w_ho = w_ho - new_lr_o * error_wrt_who
+    w_ih = w_ih - new_lr_h * error_wrt_wih
+    lr_hidden.append(new_lr_h)
+    lr_output.append(new_lr_o)
+
+3. Adam -> Rmsprop + SGDMomentum ->
+We also update the gradients ( b ,1-b) ,and also the,(using 2 momentums) 
+1 -> to update the learning rate.
+2 -> to update the gradients.
+
+ # weighted squared gradients ->1 
+ u_ho = beta_1 * u_ho + (1-beta_1) * np.square(error_wrt_who)
+    u_ih = beta_1 * u_ih + (1-beta_1) * np.square(error_wrt_wih)
+    
+    # weighted gradients ->2
+    v_ho = beta_2 * v_ho + (1-beta_2)*error_wrt_who
+    v_ih = beta_2 * v_ih + (1-beta_2)*error_wrt_wih
+    
+    # updating the learning rate 
+    new_lr_o = lr / np.sqrt(u_ho.sum())
+    new_lr_h = lr / np.sqrt(u_ih.sum())
+
+    # updating the weights
+    w_ho = w_ho - new_lr_o * v_ho
+    w_ih = w_ih - new_lr_h * v_ih
