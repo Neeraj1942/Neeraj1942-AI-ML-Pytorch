@@ -1,0 +1,11 @@
+| Step                    | Action                                   |
+| ----------------------- | ---------------------------------------- |
+| Understand Data         | Know features and target                 |
+| Missing Value Treatment | Impute `Item_Weight`, fill `Outlet_Size` |
+| Fix Categorical Issues  | Clean inconsistent categories            |
+| Feature Engineering     | Create `Outlet_Age`                      |
+| Encode Categorical Data | One-Hot or Label Encoding                |
+| Handle Invalid Data     | Fix zeros in `Item_Visibility`           |
+| Scale Features          | Normalize numerical columns              |
+| Split Features & Target | Separate X and y                         |
+| Train-Test Split        | Create training and testing datasets     |
