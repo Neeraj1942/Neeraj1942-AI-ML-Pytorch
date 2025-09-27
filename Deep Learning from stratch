@@ -197,6 +197,10 @@ when the square of gradients is low -> the learning rate is high, which takes a 
     lr_output.append(new_lr_o)
 
 3. Adam -> Rmsprop + SGDMomentum ->
+This solves both the problems caused ->
+1. To avoid getting stuck at local minima we use gradient descent with momentum. 
+2. Now we have issue with the learning rate, where if it is fixed, it forces 
+
 We also update the gradients ( b ,1-b) ,and also the,(using 2 momentums) 
 1 -> to update the learning rate.
 2 -> to update the gradients.
