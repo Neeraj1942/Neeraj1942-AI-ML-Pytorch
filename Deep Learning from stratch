@@ -68,4 +68,12 @@ a * b       -> x = np.array([4, 10, 18])  # same shape as a and b
 Note -> Always know when to use transpose, this can be made sure by looking at the shapes of the matrices.
 error_wrt_wih.shape -> (4,3) -> w_ih.shape
 error_wrt_who.shape -> (3,1) -> w_ho.shape
+Imp : 
+# rate of change of error w.r.t weight between hidden and output layer
+error_wrt_who = np.dot(Z2_wrt_who,(error_wrt_output*output_wrt_Z2).T)
+
+# rate of change of error w.r.t weights between input and hidden layer
+error_wrt_wih = np.dot(Z1_wrt_wih,(h1_wrt_Z1*np.dot(Z2_wrt_h1,(output_wrt_Z2*error_wrt_output))).T)
+
+
 
