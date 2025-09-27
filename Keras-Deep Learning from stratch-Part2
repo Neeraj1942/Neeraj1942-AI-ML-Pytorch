@@ -1,1 +1,40 @@
+Keras ->
+keras.models import Sequential
+model = Sequential()
+
+keras.layers ->
+from keras.layers import Dense,Conv2D
+model = Sequential()
+model.add(Dense(units =1))
+
+keras.activations ->
+from keras.activations import sigmoid, tanh
+model = Sequential()
+model.add(Dense(1,activation = sigmoid))
+
+keras.optimizers ->
+from keras.optimizers import Adam, SGD
+sgd = SGD(lr =0.01)
+
+model = Sequential()
+model.add(Dense(1,activation = sigmoid))
+model.compile(optimizer = sgd)
+
+keras.preprocessing ->
+from keras.preprocessing import image
+image.load.img('path.jpg')
+
+keras.applications ->
+from keras.applications import vgg16
+model = vgg16.VGG16(weights = 'imagenet')
+
+Problem Statement ->
+check if the loan is approved or not
+1. Fill the missing values -> Mode or Mean/Median
+2. Convert the categorical to number
+3. Scale all the data b/w 0 and 1
+
+
+
+
 
