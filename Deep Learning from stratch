@@ -75,5 +75,19 @@ error_wrt_who = np.dot(Z2_wrt_who,(error_wrt_output*output_wrt_Z2).T)
 # rate of change of error w.r.t weights between input and hidden layer
 error_wrt_wih = np.dot(Z1_wrt_wih,(h1_wrt_Z1*np.dot(Z2_wrt_h1,(output_wrt_Z2*error_wrt_output))).T)
 
+# visualizing the error after each epoch
+plt.plot(np.arange(1,epochs+1), np.array(error_epoch))
+
+np.arange(1, epochs + 1) ->
+A sequence from 1 to epochs inclusive ( 1and epoch are included that is why we use till 1+ epoch)
+Because np.arange() excludes the stop value, you need epochs + 1 to include the final epoch
+
+ error_epoch.append(np.average(error)) -> np.average() is required because :
+y       = [1, 0, 1, 0, 1, 0]
+output  = [0.9, 0.1, 0.8, 0.3, 0.7, 0.2]
+
+error = (y - output)² / 2
+      = [0.005, 0.005, 0.02, 0.045, 0.045, 0.02]  # shape: (1, 6) -> here the avarage of these error list is taken / per epoch 
+
 
 
