@@ -143,6 +143,8 @@ plt.plot(model_history.history['val_acc'])
 
 model_history.history keys are fixed by Keras, based on the metric names 
 (loss, val_loss, accuracy, val_accuracy, etc.)
+Note : The .fit() method returns a History object — stored in model_history.
+       This History object has an attribute called .history.
 
 | Key                             | Meaning                                                                           |
 | ------------------------------- | --------------------------------------------------------------------------------- |
