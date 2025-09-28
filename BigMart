@@ -37,6 +37,10 @@ items which have to be saved, before deleting it  from the train dataset->
 ✅ Save item_weight_map before dropping Item_Identifier
 
 Note : * stratify only works with categorical / discrete labels — not continuous ones. *
+| Situation                        | Use `stratify`? |
+| -------------------------------- | --------------- |
+| Classification (discrete labels) | ✅ Yes           |
+| Regression (continuous labels)   | ❌ No            |
 
 
 
