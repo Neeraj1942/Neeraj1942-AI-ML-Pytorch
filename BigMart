@@ -32,3 +32,16 @@ Item_Weight, Item_Visibility, Item_MRP, Outlet_Age
 Normalize target: Item_Outlet_Sales
 Drop Item_Identifier
 
+
+items which have to be saved, before deleting it  from the train dataset->
+✅ Save item_weight_map before dropping Item_Identifier
+
+Note : * stratify only works with categorical / discrete labels — not continuous ones. *
+
+
+
+✅ Save the LabelEncoders (le) for Outlet_Size and Outlet_Location_Type)
+
+✅ Save Min/Max values or Scalers for normalization
+
+✅ Save group means for Item_Visibility if needed (though optional, depending on how you handle it)
