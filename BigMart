@@ -49,3 +49,179 @@ Note : * stratify only works with categorical / discrete labels — not continuo
 ✅ Save Min/Max values or Scalers for normalization
 
 ✅ Save group means for Item_Visibility if needed (though optional, depending on how you handle it)
+
+
+Real life production approach - 
+Step 1: Fit on Train
+python# Training data
+train = pd.DataFrame({
+    'age': [25, 30, np.nan, 40, 35],
+    'income': [50000, np.nan, 70000, 80000, 60000]
+})
+
+# Create imputer
+imputer = SimpleImputer(strategy='median')
+
+# FIT: Learn the statistics from training data
+imputer.fit(train)
+# What it learns:
+# - median of 'age' = 32.5
+# - median of 'income' = 65000.0
+# These values are STORED inside the imputer object
+Step 2: Transform Train
+python# Apply the learned statistics to training data
+train_transformed = imputer.transform(train)
+
+# Result:
+# age: [25, 30, 32.5, 40, 35]  ← Missing filled with 32.5
+# income: [50000, 65000, 70000, 80000, 60000]  ← Missing filled with 65000
+Step 3: Transform Test (Using Train Statistics)
+python# Test data (completely new, unseen)
+test = pd.DataFrame({
+    'age': [28, np.nan, 45],
+    'income': [55000, 75000, np.nan]
+})
+
+# Use the SAME imputer (already fitted on train)
+test_transformed = imputer.transform(test)
+
+# Result:
+# age: [28, 32.5, 45]  ← Uses median from TRAIN (32.5), not test
+# income: [55000, 75000, 65000]  ← Uses median from TRAIN (65000)
+
+Why This Matters: Preventing Data Leakage
+❌ WRONG Approach (Data Leakage)
+python# BAD: Fit on combined train + test
+all_data = pd.concat([train, test])
+imputer.fit(all_data)  # ← Learns from test data!
+
+# Problem: Test statistics leak into training
+# - Model sees future information it shouldn't have
+# - Overly optimistic performance
+# - Fails in real production
+✅ CORRECT Approach (No Leakage)
+python# GOOD: Fit only on train
+imputer.fit(train)  # ← Learns ONLY from train
+
+# Apply to both
+train_clean = imputer.transform(train)
+test_clean = imputer.transform(test)
+
+# Test is treated as truly unseen data
+
+Example 2: Label Encoder
+Fit on Train
+pythontrain = pd.DataFrame({
+    'city': ['NYC', 'LA', 'NYC', 'Chicago', 'LA']
+})
+
+encoder = LabelEncoder()
+encoder.fit(train['city'])
+
+# What it learns and stores:
+# - Classes: ['Chicago', 'LA', 'NYC']
+# - Mapping: {'Chicago': 0, 'LA': 1, 'NYC': 2}
+Transform Train
+pythontrain['city_encoded'] = encoder.transform(train['city'])
+
+# Result:
+# city      → city_encoded
+# 'NYC'     → 2
+# 'LA'      → 1
+# 'NYC'     → 2
+# 'Chicago' → 0
+# 'LA'      → 1
+Transform Test
+pythontest = pd.DataFrame({
+    'city': ['LA', 'NYC', 'Boston']  # 'Boston' is NEW!
+})
+
+# Use same encoder (fitted on train)
+try:
+    test['city_encoded'] = encoder.transform(test['city'])
+except ValueError:
+    print("Error: 'Boston' not in training data!")
+    # Need to handle: assign to -1 or 'unknown' category
+
+Example 3: StandardScaler (Most Critical!)
+Fit on Train
+pythontrain = pd.DataFrame({
+    'price': [100, 200, 150, 300, 250]
+})
+
+scaler = StandardScaler()
+scaler.fit(train)
+
+# What it learns:
+# - mean = 200
+# - std = 74.83
+# These are stored in scaler.mean_ and scaler.scale_
+Transform Train
+pythontrain_scaled = scaler.transform(train)
+
+# Formula: (value - mean) / std
+# 100 → (100 - 200) / 74.83 = -1.34
+# 200 → (200 - 200) / 74.83 = 0.00
+# 150 → (150 - 200) / 74.83 = -0.67
+# 300 → (300 - 200) / 74.83 = 1.34
+# 250 → (250 - 200) / 74.83 = 0.67
+Transform Test (Critical: Uses Train Stats!)
+pythontest = pd.DataFrame({
+    'price': [180, 220, 400]
+})
+
+test_scaled = scaler.transform(test)
+
+# Uses TRAIN mean (200) and TRAIN std (74.83):
+# 180 → (180 - 200) / 74.83 = -0.27
+# 220 → (220 - 200) / 74.83 = 0.27
+# 400 → (400 - 200) / 74.83 = 2.67  ← Outside train range!
+Why Not Fit on Test?
+python# If we fit on test (WRONG!):
+test_mean = 266.67  # Different from train!
+test_std = 95.74    # Different from train!
+
+# This breaks everything:
+# - Model trained on one scale
+# - Test data on different scale
+# - Predictions will be garbage
+
+Visual Summary
+TRAINING PHASE:
+┌─────────────┐
+│ Train Data  │
+└──────┬──────┘
+       │
+       ▼
+  [FIT] Learn statistics
+       │  - Mean, Median, Mode
+       │  - Categories, Encodings
+       │  - Min, Max, Std Dev
+       ▼
+┌─────────────────┐
+│ Fitted Object   │ ← Stores learned parameters
+└─────────────────┘
+       │
+       ▼
+  [TRANSFORM] Apply to train
+       │
+       ▼
+┌─────────────────┐
+│ Processed Train │
+└─────────────────┘
+
+TESTING PHASE:
+┌─────────────┐
+│ Test Data   │
+└──────┬──────┘
+       │
+       ▼
+  Use SAME fitted object (no re-fitting!)
+       │
+       ▼
+  [TRANSFORM] Apply learned statistics
+       │
+       ▼
+┌─────────────────┐
+│ Processed Test  │
+└─────────────────┘
