@@ -207,33 +207,36 @@ Filter/kernel ->
 | Sobel Y   | Y         | Horizontal edges | top ↔ bottom   |
 
 
-Prewitt x -> 
+Prewitt x -> ( Prewitt_v)
 -1  0  1
 -1  0  1
 -1  0  1
 
-Prewitt Y ->
+Prewitt Y -> ( Prewitt_h)
 -1  -1  -1
  0  0  0
  1  1  1
 
-Sobett x ->
+Sobett x -> (Sobett_v)
 -1  0  1
 -2  0  2
 -1  0  1
 
-Sobett y >
+Sobett y -> (Sobett_v)
 -1  -2  -1
  0  0  0
  1  2  1
 
 
 Code ->
+Importing - >
+from skimage.filters import sobel_h,prewitt_h,prewitt_v,sobel_v
+
 #reading the image and plotting it
 image = imread('dog.jpg', as_gray=True)
 imshow(image,cmap='gray')
 
-Explanation : cmap='gray'
+Explanation : cmap='gray' (basically for the backgroud to be gray)
 imshow() needs a colormap to map pixel values to colors.
 By default, Matplotlib uses a viridis colormap (blue → green → yellow).
 Setting cmap='gray' tells Matplotlib to display the 2D array in grayscale.
