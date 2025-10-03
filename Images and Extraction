@@ -152,5 +152,93 @@ ax[0] -> as (1,2) is the shape, ax[0] and ax[1] are 1-d array only we cannot use
 
 
 
+Converting a image from one style to another (rgb -> grayscale , rgba -> rgb)
+Important imports -> 
+
+from skimage.color import rgb2gray, rgba2rgb
+
+Initially ->
+image_rgba.shape : (340, 453, 4)
+image_rgb.shape  : (340, 453, 3)
+
+Code -> 
+
+# converting rgba to rgb
+image_rgb = rgba2rgb(image_rgba)
+image_rgb.shape 
+Output : (340, 453, 3)
+
+# converting rgb to gray
+image_gray = rgb2gray(image)
+image_gray.shape
+Output : (340, 453)
+
+Loading the RGB image in Grayscale format ->
+Note: imshow(image_gray) automatically applies a grayscale colormap. ( normally it is false, but if we change it to true this happens :)
+image_ = imread('dog.jpg', as_gray=True)
+imshow(image_)
+
+Loading the RGBA image in Grayscale format ->
+image_ = imread('mid_alpha.png', as_gray=True)
+print(image_.shape)
+imshow(image_)
+
+
+Extracting Edges from images ->
+What is an Edge in Image Processing?
+
+An edge is a region in an image where the intensity (pixel value) changes sharply.
+Edges often represent boundaries of objects, lines, or texture changes.
+In other words, edges are locations in the image where the brightness changes abruptly.
+
+Filter or kernel -> is a matrix which helps in comaring the pixel values .
+1. Higher the difference ( multiplication with the matrix/kernel) -> pixel is close to edge 
+2. Lower the difference ( multiplication with the matrix/kernel)  -> pixel is far from edge / pixel is not at the edge
+Filter/kernel ->
+-1  0  1
+-1  0  1
+-1  0  1
+
+| Kernel    | Direction | What it detects  | Axis of change | Intution 
+| --------- | --------- | ---------------- | -------------- |
+| Prewitt X | X         | Vertical edges   | left ↔ right   |Each column compares left pixels vs right pixels in the neighborhood- (changes when moving left ↔ right).
+| Prewitt Y | Y         | Horizontal edges | top ↔ bottom   |Each row compares top pixels vs bottom pixels - (changes when moving top ↔ bottom)
+| Sobel X   | X         | Vertical edges   | left ↔ right   |
+| Sobel Y   | Y         | Horizontal edges | top ↔ bottom   |
+
+
+Prewitt x -> 
+-1  0  1
+-1  0  1
+-1  0  1
+
+Prewitt Y ->
+-1  -1  -1
+ 0  0  0
+ 1  1  1
+
+Sobett x ->
+-1  0  1
+-2  0  2
+-1  0  1
+
+Sobett y >
+-1  -2  -1
+ 0  0  0
+ 1  2  1
+
+
+Code ->
+#reading the image and plotting it
+image = imread('dog.jpg', as_gray=True)
+imshow(image,cmap='gray')
+
+Explanation : cmap='gray'
+imshow() needs a colormap to map pixel values to colors.
+By default, Matplotlib uses a viridis colormap (blue → green → yellow).
+Setting cmap='gray' tells Matplotlib to display the 2D array in grayscale.
+
+
+
 
 
