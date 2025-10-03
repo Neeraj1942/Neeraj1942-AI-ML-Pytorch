@@ -1,1 +1,10 @@
-Hi 
+Images ->
+They are stored in matrix of pixel values
+0 represents black(lower intensity) , 255 represents white(higher intensity)
+matrix of numbers is known as a channel
+size of the image is length and breadth of the matrix 
+pixel value tells us the intensity of the pixel
+
+Every coloured image has 3 channels ( red green and blue) 
+colour image -> N * M * 3 -> L * W * 3(represents number of channels)
+greyscale images -> N * M *! (1 is the channel)
