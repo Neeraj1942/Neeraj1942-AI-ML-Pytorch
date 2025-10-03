@@ -1,0 +1,68 @@
+Sequential API ->
+A simple stack of layers, where each layer has exactly one input and one output.
+When your model is just a straight line: Input → Hidden Layers → Output.
+
+Functional API ->
+A more flexible way to define models by explicitly connecting layers as a graph of tensors.     
+      A
+  B      C     ( A-> (B,C) -> D -> F) 
+      D
+      F 
+***
+x = Input(shape = (Input_nuerons,))
+hidden_B = Dense(units = neuron_hidden_B, activation = 'ReLU')(x)
+hidden_C = Dense(units = neuron_hidden_C, activation = 'ReLU')(x)
+
+combined = concatenate([hidden_B,hidden_C])
+hidden_D = Dense(units = neuron_hidden_D, activation = 'ReLU')(combined)
+output = Dense(units = output_neuron, activation = 'sigmoid')(hidden_D)
+
+model_functional = Model(x,output)
+                                  ***
+
+stratify = data['Loan_Staus'] -> the loan status has 70 % yes 30% no , then the split will have both the values.
+
+prediction = prediction.reshape(123,) ->
+Looks like :
+Before: [[0.56], [0.72], [0.14], ...] shape = (123, 1)
+After: [0.56, 0.72, 0.14, ...] shape = (123,)
+
+prediction_int = prediction >= 0.5
+prediction_int = prediction_int.astype(np.int)  :
+in the first case > 0.5 , it gives True and False,
+.astype(np.int) -> or can be written as -> .astype(int) -> convert it to 0's and 1's
+
+Now if we predict -> 
+model_history = model_functional.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=50)\
+with train and valiation we get -> print(model_history.history.keys()) -> output : dict_keys(['loss', 'val_loss'])
+
+If you didn’t provide validation data, you’ll only get ->
+dict_keys(['loss'])
+
+print(history.history.keys()) ->
+dict_keys(['loss', 'accuracy', 'val_loss', 'val_accuracy'])
+
+print(model_history.history.keys()) ->
+dict_keys(['loss', 'val_loss'])
+
+plt.xlabel('epoch') -> this comes from the array index of the py plots.
+Matplotlib uses the array index as the x-axis: 0, 1, 2, ..., n-1.
+
+plt.plot(model_history.history['accuracy'])
+plt.plot(model_history.history['val_accuracy'])
+
+or 
+
+plt.plot(model_history.history['loss'])
+plt.plot(model_history.history['val_loss'])
+
+both tell us - >
+First line: plots how training accuracy changed over epochs.
+Second line: plots how validation accuracy changed over epochs.
+and
+First line: plots how training loss changed over epochs.
+Second line: plots how validation loss changed over epochs.
+
+
+
+
