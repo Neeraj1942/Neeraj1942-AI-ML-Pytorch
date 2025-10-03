@@ -6,5 +6,151 @@ size of the image is length and breadth of the matrix
 pixel value tells us the intensity of the pixel
 
 Every coloured image has 3 channels ( red green and blue) 
-colour image -> N * M * 3 -> L * W * 3(represents number of channels)
-greyscale images -> N * M *! (1 is the channel)
+1. colour image -> N * M * 3 -> L * W * 3(represents number of channels) mostly RGB(red,blue,green format)
+2. greyscale images -> N * M *! (1 is the channel)
+
+3. RGBA -> Red Green Blue - Alpha
+Alpha -> Denotes the transperancy
+Range of Alpha - 0 to 255 -> 0: completely blurred, 255 : zero blur
+
+3. MRI (Magnetic Resonance Imaging) -> Hight, Width, Slices, Channel 
+(4D matrix), each slice represents the internal structure of the object, which gives the 4d shape.
+Popular examples - > MRI images, CT scans
+
+Greyscale -> 2-D matrix -> N * M
+RGB       -> 3-D matrix -> N * M * Channel -> Channel = 3
+RGBA      -> 3-D matrix -> N * M * Channel -> Channel = 4
+MRI       -> 4-D matrix -> N * M *  Slices * Channel
+
+red_filter = [1,0,0]
+imshow(image * red_filter) ->
+Result: you get the original red intensity of the image, displayed in red tones (not grayscale).
+
+
+imshow(image[:,:,0], cmap='Reds') ->  "make a grayscale red-tinted picture based only on red brightness values."
+shows the red channel as a 2D heatmap, not an RGB image.
+brighter red = stronger intensity, darker = weaker.
+
+# importing modules from skimage to read and display images
+import skimage
+from skimage.io import imshow, imread, imsave
+from skimage.transform import resize
+import numpy as np
+
+(important imports from skimage)
+
+1. Grayscale ->
+image_gray = imread('')
+image_gray.shape -> gives the shape 
+image_gray -> gives the matrix of the full image
+
+2. RGB ->
+
+red_filter = [1,0,0]    
+imshow(image*red_filter)
+Can be done for blue(0,0,1) and greeen (0,1,0)
+
+Another way to get it on a grayscale is ->
+# individual channel using cmap
+imshow(image[:,:,0], cmap='Reds') -> Blues, Greens, Greys and etc...
+
+to show the matrix of :
+red  -> image[:,:,0]
+blue -> image[:,:,2]
+green-> image[:,:,1]
+
+RGBA ->
+# print the alpha value
+image_rgba[:,:,3]
+
+#change value of alpha channel
+image_rgba[:,:,3] = image_rgba[:,:,3]-100
+
+MRI -> ( hdr -> high dynamic range)
+# loading library to read images ( important library for MRI images -> includes channels and slicing)
+import nibabel as nib
+
+To Load ->
+image_mri = nib.load('sM00223_002.hdr')
+image_mri = image_mri.get_data()
+image_mri.shape -> (256, 256, 54, 1)
+
+(256, 256, 54, 1) -> 256,256 -> 54 such images; 1 denotes grey scale images
+image_mri = image_mri.squeeze()
+image_mri.shape
+
+.squeeze() -> is a NumPy method that removes dimensions of size 1 from an array.
+Example usage ->
+import numpy as np
+arr = np.zeros((1, 4, 1, 5))
+print("Before squeeze:", arr.shape)   # (1, 4, 1, 5)
+arr_squeezed = arr.squeeze() -> (removes all the 1D's from the data)
+print("After squeeze:", arr_squeezed.shape)  # (4, 5)
+
+creating subplots - > to get each image out of the 54 images.
+# visualizing images
+import matplotlib.pyplot as plt
+
+fig,ax = plt.subplots(nrows=2,ncols=3, figsize=(20,20))
+
+ax[0,0].imshow(image_mri[:, :, 0], cmap = 'gray')
+ax[0,1].imshow(image_mri[:, :, 11], cmap = 'gray')
+ax[0,2].imshow(image_mri[:, :, 23], cmap = 'gray')
+ax[1,0].imshow(image_mri[:, :, 37], cmap = 'gray')
+ax[1,1].imshow(image_mri[:, :, 42], cmap = 'gray')
+ax[1,2].imshow(image_mri[:, :, 51], cmap = 'gray')
+
+Loading multiple images ->
+glob -> 
+glob("*.jpg") searches the current working directory for all files ending in .jpg.
+It returns a list of filenames (strings).
+
+# reading multiple images
+from glob import glob   
+image_name = glob("*.jpg")
+
+image_name -> ['car-49278_960_720.jpg', 'beagle-dog.jpg', 'dog.jpg']
+
+image_=[]
+for i in image_name:
+  image = imread(i)
+  imshow(image)
+  plt.show()
+  image_.append(image)
+
+final_images = np.array(image_) -> displays all the images 
+final_images.shape -> (3,) because it has multiple size images and its a 1-d numpy array 
+
+Note -> If all images had the same shape, final_images would become a proper 4D NumPy array. 
+But since your images are different sizes, NumPy cannot stack them into one uniform array.
+👉 Instead, it makes a 1D array of objects (each object = one image array)
+
+final_images[0].shape, final_images[1].shape, final_images[2].shape -> ((540, 960, 3), (160, 228, 3), (340, 453, 3))
+
+To resize image we use -> .resize(image,size)  : ex -> resize(final_images[i], (340, 450))
+Code ->
+final_resized = [] 
+for i in range (0,3):
+  temp = resize(image[i],(340,450))
+  final_resized.append(temp)
+
+resize(final_images[i], (340, 450)) 
+
+final_images.shape -> (3, 340, 450, 3)
+
+the plot to show that ->
+
+# visualizing images
+import matplotlib.pyplot as plt
+fig,ax = plt.subplots(nrows=1, ncols=2)
+ax[0].imshow(final_resized[2])
+ax[1].imshow(final_images[2])
+
+Explanation of the plot -> 
+fig means the whole canvas , ax is defined my the rows =1 , and cols = 2 ( one row and 2 columns)
+ax[0] -> as (1,2) is the shape, ax[0] and ax[1] are 1-d array only we cannot use ax[0,0] or ax[0,1] 
+
+
+
+
+
