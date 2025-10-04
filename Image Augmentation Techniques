@@ -1,1 +1,95 @@
-hi
+Image Augmentation Techniques ->
+Instead of collecting more images, we apply transformations to existing images.
+The label/class remains the same; only the image appearance changes.
+
+# Image Augmentation Techniques :
+
+1. **Image Rotation**  
+   - Rotating the image by a small angle (e.g., ±15°)
+
+2. **Image Shifting (Translation)**  
+   - Moving the image along axes:
+     - Horizontal shift (left-right)
+     - Vertical shift (up-down)
+
+3. **Image Flipping**  
+   - Flipping the image along an axis:
+     - Left-Right (horizontal flip)  
+     - Up-Down (vertical flip)
+
+4. **Image Noising**  
+   - Adding random noise to the image to make the model robust
+
+5. **Image Blurring**  
+   - Slightly blurring the image to simulate focus variations or camera shake
+
+1. Image Rotation :
+#import required libraries
+from skimage.transform import rotate
+
+#rotating the image by 30 degrees
+rotated = rotate(image,angle=30)
+#plot the rotated image
+print('Rotated Image')
+imshow(rotated)
+
+2.Image Shifting (Translation) :
+After the shift operation, an object present at location (x,y) in the input image is shifted to a new position (X,Y):
+**X = x + dx** 
+**Y = y + dy** 
+
+#apply shift operation
+from skimage.transform import AffineTransform, warp
+transform = AffineTransform(translation=(40,40))
+Shift = warp(image,transform)
+
+plt.imshow(Shift)
+plt.title('Normal Shift')
+
+Now when we specify mode = 'edge' -> this helps to remove the edges from the images(i.e gaps)
+wrapShift = warp(image,transform,mode='edge')
+
+3.Image Flipping :
+flipLR = np.fliplr(image)  -> numpy module , we use the 'fliplr' function
+
+#flip image left-to-right
+flipLR = np.fliplr(image)
+
+#flip image up-to-down
+flipLR = np.flipup(image)
+
+#flip image right-to-left
+same as np.fliplr(image)
+#flip image down-to-up
+same as np.flipup(image)
+
+4.Image Noising :
+from skimage.util import random_noise
+
+#add random noise to the image
+noisyRandom = random_noise(image,var=0.2) -> var means variant specifies the amount of noise you you want to add.
+
+plt.imshow(noisyRandom)
+plt.title('Random Noise')
+
+we can also use a predefined distibution (i.e gaussian distribution)
+noisyGaussian = random_noise(image,mode='gaussian')
+
+plt.imshow(noisyGaussian)
+plt.title('Gaussian Noise')
+
+5.Image Blurring :
+#import required libraries
+from skimage.filters import gaussian
+
+#blur the image
+blurred = gaussian(image,sigma=2.5,multichannel=True)
+
+plt.imshow(blurred)
+plt.title('Blurred Image')
+
+sigma → controls the strength of the blur; higher → more blurred.
+multichannel → tells the function the image has multiple color channels (RGB); applies blur to each channel separately.
+
+Question : Which line of code correctly specifies shifting an image by 50 pixels horizontally and 40 pixels vertically using AffineTransform?
+Sol : AffineTransform(translation=(50,40))
