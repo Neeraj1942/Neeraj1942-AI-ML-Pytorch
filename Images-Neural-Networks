@@ -1,1 +1,69 @@
+Problem Statement -> Compare emergency vehicles and non emergency vehicles
+Note ->
+plt.imread() : Comes from Matplotlib.
+imread()     : Comes from imageio or skimage
+
+# converting 3 dimensional image to 1 dimensional image  -> during this step, the (224,224,3) is used as one and - 224*224*3
+X = X.reshape(X.shape[0], 224*224*3)
+X.shape
+
+Note : when used in neural network, because all the vectors are stored in 224*224*3 this value the (input_shape = (X_train.shape[1],))
+# compiling the model
+model.compile(loss='binary_crossentropy', optimizer="sgd", metrics=['accuracy'])
+
+model.compile(loss='binary_crossentropy', optimizer="sgd", metrics=['accuracy'])
+model_history = model.fit(X_train, y_train, epochs=50, batch_size=128,validation_data=(X_valid,y_valid))
+-> optimizer used : Mini-batch gradient descent
+
+predictions = model.predict(X_valid)[:, 0] -> helps in flattening the values , (nums,1)  -> becomes only (nums, ) 
+
+prediction = predictions.reshape(-1,)    -> this just helps to make sure that the prediction are 1-d arrays(something like a recheck)
+
+# converting probabilities to classes
+prediction_int = prediction >= 0.5
+prediction_int = prediction_int.astype(np.int)
+
+Helps to convert the floating classes to .astype(int) which is integer so it converts to integer( 0,1) basically probabilities.
+
+Checking the accuracy ->
+# accuracy on validation set
+from sklearn.metrics import accuracy_score
+print('Accuracy on validation set:', accuracy_score(y_valid, prediction_int), '%')
+
+
+Checking is thre model is working fine ->
+# pull out the original images from the data which correspond to the validation data ( as we have used a undeclared,x we give it the value -> data.image_names.values)
+_, valid_vehicles, _, valid_y = train_test_split(data.image_names.values, y, test_size=0.3, random_state=seed)  
+
+# get a random index to plot image randomly
+index = rng.choice(range(len(valid_vehicles)))
+
+# get the corresponding image name and probability
+img_name = valid_vehicles[index]
+prob = (predictions * 100).astype(int)[index]
+
+# read the image
+img = plt.imread('Dataset/images/' + img_name)
+
+# print probability and actual class
+print('Model is', prob , '% sure that it is emergency')
+print('And actual class is ', valid_y[index])
+
+# plot image
+plt.imshow(img)
+
+
+
+Hyper Turning the Neural Networks ->
+
+Hyperparameter tuning of neural networks : 
+1. change activation function of hidden layer -> using ReLU instead of sigmoid
+2. increase hidden neurons                    -> using 1024 instead of 100
+3. increase hidden layers                     -> adding another layer to the initial activation layer( adding one more)
+4. increase number of epochs                  -> from 50 to 100
+5. change optimizer                           -> using adam (with learning rate(lr) = 1e-5) instead of SGD(mini batch)
+
+Project - Gender Classification
+
+
 
