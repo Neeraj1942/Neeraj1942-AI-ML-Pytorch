@@ -42,7 +42,7 @@ patience = no .of epochs - 5
 mode = 'max' to maximize the value of validation loss
 
 training the model using early stop ->
-model_history  = model.fit(x,y,epochs = , batch_size = ,validation_data = , callbacks =[early_stopping])
+model_history  = model.fit(x_train,y_train,epochs = , batch_size = ,validation_data = , callbacks =[early_stopping])
 
 we can also hyperparameter tuning for early stopping ->
 monitor =  remains same , val_loss/val_accuracy
@@ -52,7 +52,138 @@ mode = remains same according to val_loss/val_accuracy
 
 
 Dropout ->
+It is a regularization technique which prevents overfitting
+Def - it helps to drop some neurons, to prevent overfitting of the model
+It helpe to assign the probability of the drop of neurons, (i.e say 0.5 there is a 50percent chance that these neurons are dropped)
+( helps in making sure the inouts are not memerised by the neurons)
+
+Important rules of dropout ->
+• At each iteration, neurons are dropped randomly
+• Generally, we don't apply dropout on the input layer
+• No dropout during test time
+
+Steps involved ->
+1. Loaded the dataset 
+2. Preprocessing the data
+3. Creating train and test split
+4. Defining model architecture 
+4.1 -> Defining dropout (must include the probabilities)
+5. Compiling the model
+6. Training the model
+7. Evaluating the metrics
+
+Implementation ->
+# importing the dropout layer
+from keras.layers import Dropout
+
+model=Sequential()
+
+model.add(InputLayer(input_shape=(224*224*3,)))
+model.add(Dense(100, activation='sigmoid'))
+model.add(Dropout(rate=0.5))
+model.add(Dense(100, activation='sigmoid'))
+model.add(Dropout(rate=0.5))
+model.add(Dense(units=1, activation='sigmoid'))
+
+Dropout hyperparameters ->
+Changing the probabilities (i.e (rate =) )
 
 
+Vanishing and Exploding Gradients ->
+( mostly while building deeper neural networks)
+When change of error w.r.t to weights is very small it vanishes, meaning the gradient is very low -> Vanishing gradients  
+Where the gradient value is very large the weights get changed a lot in high number( i.e change ) -> exploding gradients
+
+# Chain rule breakdown   
+∂Wih​∂E​=∂O∂E​⋅∂Z2​∂O​⋅∂h1​∂Z2​​⋅∂Z1​∂h1​​⋅∂Wih​∂Z1​​    ( ∂h1​∂Z2​​, ∂Wih​∂Z1) these terms is w.r.t to activation function. 
+when we use functions like sigmoid and tanh they are very low derivative values , this causes the value of gradient is decrease a lot and vanish.(when many of these layers , further it decreases)
+similarly ( ∂Z1​∂h1, ∂Z2​∂O​) these are the weights between the hidden and the ouput layers, and these can be vanished(when very small weight values are used) (We have to initialize the correct weights)
+
+Now when we use larger weights to initialize , or higher derviative activation functions the above derivatives can give very high values which cause the gradient to explode.
+
+Exploding gradients solution ->
+Gradient clipping  -> we define a threshold, clipvalue
+g =
+    -clipvalue   if g < -clipvalue
+     clipvalue   if g >  clipvalue
+     g           otherwise
+
+Application :
+1. Loaded the dataset 
+2. Preprocessing the data
+3. Creating train and test split
+4. Defining model architecture
+5. Compiling the model 
+5.1 Clip value at the defining the optimizer
+6. Training the model
+7. Evaluating the metrics
+
+# defining the adam optimizer and setting the learning rate as 10^-5 and adding clip value to clip the gradients
+adam = Adam(lr=1e-5, clipvalue=1)
 
 
+Vanishing gradient solution ->
+1. Using a activation function with greater derivative value ( Using Relu activation function)
+2. Appropriate Weight initialization
+
+Question : Suppose the gradient value during backpropagation comes out to be -4.5 and the clipvalue is set as 2. In this case what will be the clipped value of the gradient->
+using gradient clipping as it is set to 2 , and the valuer is negative, its -2
+
+Weight Initialization techniques ->
+1. Random Normal Initialization
+2. Glorot Normal Initialization / Xavier Normal Initialization
+3. He Normal Initialization
+1️⃣ Random Normal:
+    W ~ N(0, σ²)
+
+2️⃣ Glorot / Xavier Normal:
+    W ~ N(0, 1 / √(n_in + n_out))
+
+3️⃣ He Normal:
+    W ~ N(0, √(2 / n_in))
+Question:
+Which functions can initialize all weights and biases to 1? ->
+A. keras.initializers.Ones()
+C. keras.initializers.Constant(value = 1)
+
+Implementation of the Weight Initialization techniques ->
+1. Loaded the dataset 
+2. Preprocessing the data
+3. Creating train and test split
+-> import the weight initialization techniques
+4. Defining model architecture
+-> use with the model architecture definition
+5. Compiling the model 
+5.1 Clip value at the defining the optimizer
+6. Training the model
+7. Evaluating the metrics
+
+Importing : from keras.initializers import random_normal, glorot_normal, he_normal
+1. Random Normal Initialization ->
+model=Sequential()
+
+
+model.add(InputLayer(input_shape=(224*224*3,)))
+model.add(Dense(100, activation='sigmoid', kernel_initializer=RandomNormal(mean=0.0, stddev=0.05, seed=seed)))
+model.add(Dense(100, activation='sigmoid', kernel_initializer=RandomNormal(mean=0.0, stddev=0.05, seed=seed)))
+model.add(Dense(1, activation='sigmoid', kernel_initializer=RandomNormal(mean=0.0, stddev=0.05, seed=seed)))
+
+
+2. Glorot Normal Initialization / Xavier Normal Initialization ->
+model = Sequential()
+
+model.add(InputLayer(input_shape=(224*224*3,)))
+model.add(Dense(100, activation='sigmoid', kernel_initializer=glorot_normal(seed=seed)))
+model.add(Dense(100, activation='sigmoid', kernel_initializer=glorot_normal(seed=seed)))
+model.add(Dense(1, activation='sigmoid', kernel_initializer=glorot_normal(seed=seed)))
+
+
+3. He Normal Initialization ->
+model = Sequential()
+
+model.add(InputLayer(input_shape=(224*224*3,)))
+model.add(Dense(100, activation='sigmoid', kernel_initializer=he_normal(seed=seed)))
+model.add(Dense(100, activation='sigmoid', kernel_initializer=he_normal(seed=seed)))
+model.add(Dense(units=1, activation='sigmoid', kernel_initializer=he_normal(seed=seed)))
+
+BatchNorm -> 
