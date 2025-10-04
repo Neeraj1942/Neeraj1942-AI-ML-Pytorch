@@ -1,0 +1,58 @@
+Metrics to check for early stopping requirement -> ( looking at the grapgh epochs v/s loss)
+1. validation loss/ validation accuracy
+2. Threshold -> if the loss is not decreasing my some threshold value, we have to early stop
+3. Number of epochs 
+Steps ->
+1. Loaded the dataset 
+2. Preprocessing the data
+3. Creating train and test split
+4. Defining model architecture
+5. Compiling the model
+6. Training the model
+7. Evaluating the metrics
+
+Steps for using early stop ->
+1. Loaded the dataset 
+2. Preprocessing the data
+3. Creating train and test split
+4. Defining model architecture
+5. Compiling the model
+5.1 Setting the early stop
+5.2 Training the model using early stop
+6. Training the model
+7. Evaluating the metrics
+
+Implementation ->
+# defining the adam optimizer and setting the learning rate as 10^-5
+adam = Adam(lr=1e-5)
+
+Importing ->
+from keras.callbacks import EarlyStopping
+
+early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.01, patience=5, mode='min')
+monitor -> specifies the metric we want to monitor - val_loss
+min_delta = threshold specified to 0.01
+patience = no .of epochs - 5 
+mode = 'min' to minimize the value of validation loss
+
+incase of using accuracy ->
+monitor -> specifies the metric we want to monitor 
+min_delta = threshold specified to 0.01 - val_accuracy
+patience = no .of epochs - 5 
+mode = 'max' to maximize the value of validation loss
+
+training the model using early stop ->
+model_history  = model.fit(x,y,epochs = , batch_size = ,validation_data = , callbacks =[early_stopping])
+
+we can also hyperparameter tuning for early stopping ->
+monitor =  remains same , val_loss/val_accuracy
+min_delta = can be changed
+patience =  increasing/ decreasing the no of epochs
+mode = remains same according to val_loss/val_accuracy
+
+
+Dropout ->
+
+
+
+
