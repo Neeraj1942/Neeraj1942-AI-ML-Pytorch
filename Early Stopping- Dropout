@@ -187,3 +187,55 @@ model.add(Dense(100, activation='sigmoid', kernel_initializer=he_normal(seed=see
 model.add(Dense(units=1, activation='sigmoid', kernel_initializer=he_normal(seed=seed)))
 
 BatchNorm -> 
+Normalizing the hidden layers, (i.e using the mean and standard deviation of all the neurons in each hiddenlayer, so that it helps in the training)
+# Batch Normalization Formulas
+
+## 1. Batch Mean
+μ_B = (1/m) * Σ(h_i)
+
+## 2. Batch Variance
+σ_B^2 = (1/m) * Σ(h_i - μ_B)^2
+
+## 3. Normalize Activations
+ĥ_i = (h_i - μ_B) / √(σ_B^2 + ε)
+
+## 4. Scale & Shift -> this is done to make sure all the activations layers are not nirmalized same.
+H_i = γ * ĥ_i + β
+
+1. Loaded the dataset 
+2. Preprocessing the data
+3. Creating train and test split
+-> import the weight initialization techniques
+4. Defining model architecture
+-> use with the model architecture definition
+5. Compiling the model 
+5.1 Clip value at the defining the optimizer
+6. Training the model
+7. Evaluating the metrics
+
+Implementation :
+Importing ->
+from tensorflow.keras.layers import Dense, InputLayer, BatchNormalization
+
+model = Sequential()
+model.add(InputLayer(input_shape=(224*224*3,)))
+model.add(Dense(100, activation='sigmoid'))
+model.add(Dense(100, activation='sigmoid'))
+
+# Batch Normalization layer
+model.add(BatchNormalization())
+
+model.add(Dense(1, activation='sigmoid'))
+(in our data the after batchnorm the model converges very fast, and the accuracy improves very fast)
+
+Advantages of Batch Normalization
+1. Speeds up the training process by normalizing the hidden layer activations
+2. Normalizes the distribution of hidden layer activations
+3. Smoothens the loss function ->
+The loss surface becomes smoother:
+Gradients don’t explode or vanish as easily.
+Optimization can take larger, safer steps.
+Faster convergence: Since activations are normalized, each layer sees inputs with similar distributions every step.
+Reduced sensitivity to initialization: BN allows weights to be initialized more freely without causing crazy early gradients.
+
+
