@@ -18,7 +18,7 @@ The label/class remains the same; only the image appearance changes.
      - Up-Down (vertical flip)
 
 4. **Image Noising**  
-   - Adding random noise to the image to make the model robust
+   - Adding random noise to the image to make the model robust (adding small dots on the image)
 
 5. **Image Blurring**  
    - Slightly blurring the image to simulate focus variations or camera shake
