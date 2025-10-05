@@ -154,7 +154,6 @@ Implementation of the Weight Initialization techniques ->
 4. Defining model architecture
 -> use with the model architecture definition
 5. Compiling the model 
-5.1 Clip value at the defining the optimizer
 6. Training the model
 7. Evaluating the metrics
 
@@ -202,6 +201,7 @@ Normalizing the hidden layers, (i.e using the mean and standard deviation of all
 ## 4. Scale & Shift -> this is done to make sure all the activations layers are not nirmalized same.
 H_i = γ * ĥ_i + β
 
+Implementation -> 
 1. Loaded the dataset 
 2. Preprocessing the data
 3. Creating train and test split
@@ -209,7 +209,6 @@ H_i = γ * ĥ_i + β
 4. Defining model architecture
 -> use with the model architecture definition
 5. Compiling the model 
-5.1 Clip value at the defining the optimizer
 6. Training the model
 7. Evaluating the metrics
 
