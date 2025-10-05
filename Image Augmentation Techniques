@@ -93,3 +93,55 @@ multichannel → tells the function the image has multiple color channels (RGB);
 
 Question : Which line of code correctly specifies shifting an image by 50 pixels horizontally and 40 pixels vertically using AffineTransform?
 Sol : AffineTransform(translation=(50,40))
+
+
+Using the image Emergency vehicle dataset here ,
+tqdm -> from tqdm import tqdm : adds an easy progress bar to loops so you can visually track training or processing progress
+
+example usage -> 
+from tqdm import tqdm
+import time
+
+for i in tqdm(range(100)):
+    time.sleep(0.05)
+
+we can also use in data preprocessing where ->
+for epoch in tqdm(range(epochs)):
+    train_one_epoch()
+
+the ouput looks like : 
+100%|████████████████████████████████| 10/10 [00:03<00:00,  3.02it/s]
+
+Understanding the conversion to numpy array ->
+X_train = [img0, img1, img2]
+y_train = [0, 1, 2]
+
+X_train = np.array(X_train)
+y_train = np.array(y_train)
+
+Output :
+(3, 224, 224, 3) -> x_train
+(3,)             -> y_train
+
+
+Till now have reshaped the X before, but in this case we have we need the train and validation sets seperate to add more types of augumented images 
+so->
+we later manually reshape the X_train , and X_validation, later.
+Regular : reshape + split  -> X = X.reshape(X.shape[0], 224*224*3) 
+This case : split + reshape(X_train) and reshape(X_validation) -> 
+1. final_train = final_train.reshape(final_train.shape[0], 224*224*3)
+2. final_train = final_train.reshape(final_train.shape[0], 224*224*3)
+
+Regular : X.min(), X.max() ; X.min(), X.max() -> we fund min max and then normalize it.
+This case :   # normalizing the pixel values : img = img/255
+
+Note : 1e^-5 = 10^-5
+
+print('Accuracy on validation set:', accuracy_score(y_valid, np.where(model.predict(final_valid)[:, 0]<0.5, 0, 1))) ->
+this step is to mark the values to 0 if the value < 0.5 ; otherwise mark it to 1
+
+
+
+
+
+
