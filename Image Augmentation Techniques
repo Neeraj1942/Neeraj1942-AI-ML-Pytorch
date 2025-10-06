@@ -140,6 +140,36 @@ Note : 1e^-5 = 10^-5
 print('Accuracy on validation set:', accuracy_score(y_valid, np.where(model.predict(final_valid)[:, 0]<0.5, 0, 1))) ->
 this step is to mark the values to 0 if the value < 0.5 ; otherwise mark it to 1
 
+Instead of using Augmentation for each transformation, we use ->
+Image Augmentation using keras (ImageDataGenerator)
+
+from keras.preprocessing.image import ImageDataGenerator -> import Keras’s image augmentation and preprocessing utility.
+
+image_augmentation = ImageDataGenerator(rotation_range=30, width_shift_range=40, height_shift_range=40,
+                              horizontal_flip=True, vertical_flip=True, fill_mode="nearest")
+Explanation : 
+| Parameter               | What it does                                                                          | Example                      |
+| ----------------------- | ------------------------------------------------------------------------------------- | ---------------------------- |
+| `rotation_range=30`     | Randomly rotates the image up to **±30°**                                             | Tilts the image left/right   |
+| `width_shift_range=40`  | Randomly shifts the image **left/right by up to 40 pixels**                           | Moves the image horizontally |
+| `height_shift_range=40` | Randomly shifts the image **up/down by up to 40 pixels**                              | Moves the image vertically   |
+| `horizontal_flip=True`  | Randomly flips the image horizontally                                                 | Mirror flip (left ↔ right)   |
+| `vertical_flip=True`    | Randomly flips the image vertically                                                   | Flip (top ↔ bottom)          |
+| `fill_mode="nearest"`   | Fills in new pixels created after shifting/rotating using **nearest neighbor pixels** | Avoids blank areas           |
+
+then we fit the image augmentation to the train data ->
+image_augmentation.fit(X_train)
+
+Note: 2 ways to convert the 2-d, 3-d images to 1-d ->
+1. model = Sequential()
+model.add(InputLayer(input_shape=(224*224*3,)))
+
+2. model=Sequential()
+model.add(InputLayer(input_shape=(224,224,3)))
+model.add(Flatten())
+
+both serve the same purpose but the way on doing it is different.
+
 
 
 
