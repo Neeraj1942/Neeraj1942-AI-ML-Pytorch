@@ -168,8 +168,7 @@ model.add(InputLayer(input_shape=(224*224*3,)))
 model.add(InputLayer(input_shape=(224,224,3)))
 model.add(Flatten())
 
-both serve the same purpose but the way on doing it is different.
-
+Note : both serve the same purpose but the way on doing it is different.
 
 
 
