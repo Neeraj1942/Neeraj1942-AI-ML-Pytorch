@@ -1,1 +1,18 @@
+CNN (Convolutional Neural Network)
+                MLP     |      CNN
+Uses 1-d                     Uses multiple 2-dimensions
+the rgb is multiplied        This still preserves the because its the same shape and it 2-d format
+then the value is a lot
+(224*224*3) 
 
+| Feature      | **MLP**                                                 | **CNN**                                                      |
+| ------------ | ------------------------------------------------------- | ------------------------------------------------------------ |
+| Input format | Flattened 1-D vector (e.g., 224×224×3 → 150,528 inputs) | 2-D/3-D structured input (preserves width, height, channels) |
+| Spatial info | Lost (image pixels treated independently)               | Preserved (filters slide over pixels)                        |
+
+MLP(Multi Layer perceptron)       : Input Layer  →  Hidden Layers  →  Output Layer
+CNN(Convolutional Neural Network) : Input Layer →  Convolution Layer(filters)  →  Hidden Layers  →  Output Layer     
+
+Note: Helps with parameter explosion
+
+Filters used in Convolution Layer :
