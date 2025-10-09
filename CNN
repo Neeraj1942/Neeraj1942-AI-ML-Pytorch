@@ -144,3 +144,5 @@ C Number of convolutional filter
 D Both b and c -> correct 
 
 Note : Here, A means changing the vlaues in the convolution matrix , meaning updating the weights inside (which is not a trainable parameter)
+
+(Solve the CNN module gender classification question hackathon)
