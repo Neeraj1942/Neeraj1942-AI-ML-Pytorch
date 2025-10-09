@@ -168,9 +168,98 @@ model.add(InputLayer(input_shape=(224*224*3,)))
 model.add(InputLayer(input_shape=(224,224,3)))
 model.add(Flatten())
 
+
 Note : both serve the same purpose but the way on doing it is different.
 
 
+Image Generstor and Fit generator :
 
+Note : the image generator function ->
+the function is : ImageDataGenerator
+image_augmentation = ImageDataGenerator(rotation_range=30, width_shift_range=40, height_shift_range=40,
+                              horizontal_flip=True, vertical_flip=True, fill_mode="nearest")
+
+takes a 3 dimensional input only, that is why in in the input layer we use ->
+model.add(InputLayer(input_shape=(224,224,3)))
+model.add(Flatten())
+(keeping the images in the RGB format)
+
+Understanding how we fit the model using image generator function ->
+# fits the model on batches with real-time data augmentation:
+model_history = model.fit_generator(image_augmentation.flow(X_train, y_train, batch_size=128), validation_data=(X_valid, y_valid), epochs=1)
+Explanation : 
+model_history = model.fit_generator(...) -> Trains the Keras model on data generated batch by batch, rather than feeding all data at once.
+image_augmentation.flow(X_train, y_train, batch_size=128) -> 
+image_augmentation -> the object of image generator
+flow() method -> Creates a Python generator that outputs batches of augmented images and corresponding labels
+batch_size=128 → each batch contains 128 images
+
+model.fit_generator -> train data batch wise
+model.fit           -> train data full
+
+
+Model Checkpointing ->
+1. Saves the best model
+2. Incase of system failure not everything is lost
+
+Monitor ->
+Mode ->
+Val_loss(monitor) -> min(mode)
+Val_accuracy(monitor) -> max(mode)
+
+Steps to implement the model checkpointing ->
+1.Loading the dataset
+2.Pre-processing the data
+3.Creating training and validation set
+4.Defining the model architecture
+5.Compiling the model
+6.Training the model
+Setting up model checkpointing
+7.Evaluating model performance
+
+Implementation :
+# importing model checkpointing from keras callbacks
+from keras.callbacks import ModelCheckpoint
+
+HDF5 stands for Hierarchical Data Format version 5
+
+# defining model checkpointing
+
+# defining the path to store the weights
+filepath="best_weights.hdf5"
+
+# defining the model checkpointing and metric to monitor
+checkpoint = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
+
+# defining checkpointing variable
+callbacks_list = [checkpoint]
+
+model_history = model.fit(X_train, y_train, epochs=50, batch_size=128, validation_data=(X_valid,y_valid), callbacks=callbacks_list)
+then using the callable list in the model.fit() function
+
+training the model using early stop ->
+model_history  = model.fit(x_train,y_train,epochs = , batch_size = ,validation_data = , callbacks =[early_stopping])
+
+Note : both the early_stopping and checkpoint are called when, the model.fit() as lists, so either you declare them first or later in the module.
+
+checkpoint = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max') ->
+ModelCheckpoint()
+filepath                -> The path (and filename) where your model weights will be stored.
+monitor='val_accuracy'  -> Specifies which metric to track.
+verbose=1               -> Controls logging/output during training: 0 → silent, no message; 1 → prints a message whenever the model is saved
+save_best_only=True     -> Only saves the model if the monitored metric improves. Saves only the best module
+mode='max               -> Tells Keras how to interpret “improvement” for the monitored metric
+'max' → higher value is better (use for accuracy, f1_score)
+'min' → lower value is better (use for loss)
+'auto' → Keras automatically guesses based on the metric name
+
+the functions ->
+load_weights() → loads only the learned weights, not the model architecture.
+load_model() → loads the full model (architecture + weights + optimizer state).
+
+using the checkpoint ->
+model.load_weights("best_weights.hdf5")
+
+This creates a tempory file which can be used in the notebook but does not actually make a file and save it.
 
 
