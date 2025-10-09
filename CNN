@@ -114,4 +114,33 @@ During the backward propogation the parameters in the network are updated.
 The gradient of the neural network parameter are calculated -> backward propogation.
 
 
+Code Implementation ->
+For the second model :
+| Layer                                    | Output Shape         | Parameters                       | Explanation                                                                           |
+| ---------------------------------------- | -------------------- | -------------------------------- | ------------------------------------------------------------------------------------- |
+| **InputLayer**                           | `(224, 224, 3)`      | 0                                | No learnable parameters.                                                              |
+| **Conv2D(25, (5,5), activation='relu')** | `(220, 220, 25)`     | `(5*5*3)*25 + 25 = 1,900`        | Each filter has weights for all input channels + bias.                                |
+| **Conv2D(50, (5,5), activation='relu')** | `(216, 216, 50)`     | `(5*5*25)*50 + 50 = 31,300`      | Each filter sees 25 input channels.                                                   |
+| **MaxPool2D(pool_size=(4,4))**           | `(54, 54, 50)`       | 0                                | Max pooling reduces **spatial size** by taking max in each 4×4 window. No parameters. |
+| **Flatten**                              | `54*54*50 = 145,800` | 0                                | Reshapes 3D feature maps → 1D vector. No learnable parameters.                        |
+| **Dense(100, activation='sigmoid')**     | `(100,)`             | `145,800*100 + 100 = 14,580,100` | Fully connected layer: each flattened feature connected to 100 neurons.               |
+| **Dense(1, activation='sigmoid')**       | `(1,)`               | `100*1 + 1 = 101`                | Output neuron for binary classification.                                              |
 
+Note : the trainable parameters in CNN include -> Bias,Weight and filter matrix
+
+*** When you define a neural network in Keras, you don’t manually specify weights. Instead:
+Weights / biases → learned automatically during training. You don’t set their size manually.
+Filters in Conv2D → you must specify the number of filters and kernel size before training, because Keras needs to know the structure of the network.
+Error / loss matrix → computed automatically during training.
+So the only thing you have to explicitly specify before training is the size/shape of filters (kernel size, number of filters) in convolutional layers.
+✅ Key point: Keras abstracts away weight initialization; you only define network architecture.***
+
+Note : the Pooling layer in cnn has no trainable parameters
+
+Which of the following is a hyperparameter in CNN Choose only ONE best answer. 
+A Values in the convolutional filter 
+B Size of convolutional filter 
+C Number of convolutional filter 
+D Both b and c -> correct 
+
+Note : Here, A means changing the vlaues in the convolution matrix , meaning updating the weights inside (which is not a trainable parameter)
