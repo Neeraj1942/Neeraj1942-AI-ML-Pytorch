@@ -15,4 +15,103 @@ CNN(Convolutional Neural Network) : Input Layer →  Convolution Layer(filters) 
 
 Note: Helps with parameter explosion
 
-Filters used in Convolution Layer :
+Filters used in Convolution Layer : (they help in extracting the features form the images)
+The art of moving the image in ->
+left to right : column_stride 
+up to down : row_stride 
+Note: this process is convulational operation -> the process of using a filter and passing it through all the elemnts of the matrix is called convulational operation
+In this process all the edges are removed from the convulational matrix(i.e only the pixels surrounded by all are considered)
+
+Padding -> all the edges do not have layers beyond we add o's to use even the edge values
+
+2 types of padding statergy ->
+1. Same : same matrix 0's are added to the edges
+2. Valid : no zeroes are added in this process
+
+Calculating the feature maps height and width ->
+H_out = ((H_in - K_h + 2P) / S) + 1
+W_out = ((W_in - K_w + 2P) / S) + 1
+
+| Symbol       | Meaning                                     | Example                |
+| ------------ | ------------------------------------------- | ---------------------- |
+| ( H_{in} )   | Input height                                | 224                    |
+| ( W_{in} )   | Input width                                 | 224                    |
+| ( K_h, K_w ) | Filter (kernel) height and width            | 3×3 filter → 3         |
+| ( P )        | Padding (extra zeros around image)          | 1 (for “same” padding) |
+| ( S )        | Stride (how far the filter moves each step) | 1 or 2                 |
+
+for grayscale -> the 2-d image
+for RGB image -> the 3-d image
+
+The number of channels in the feature map depends on -> the number of filters in convulational filters
+Example :
+| Layer           | Filters | Output Shape   | Channels in Feature Map |
+| :-------------- | :------ | :------------- | :---------------------- |
+| Input           | —       | (224, 224, 3)  | 3                       |
+| Conv2D(32, 3×3) | 32      | (222, 222, 32) | 32                      |
+| Conv2D(64, 3×3) | 64      | (220, 220, 64) | 64                      |
+
+Number of channels in the filter layer = number of channels in the input layer
+
+Parameter sharing and Local Connectivity ->
+1. Local Connectivity -> Each output value takes input from a small(loacl) group of pixels value from the complete image.(i.e keeeps getting reduced)
+2. Parameter Sharing  -> Sharing the same filter values by all pixels of the image to the produce the same feature map.
+
+Question : explain for input - 1000 number of images , image size is 200 * 200 * 3 filters = 32 filters , image size is 3 * 3 * 3 ?
+The shape of the ouput is -> 198 * 198 
+For each image there are 32 filters meaning 32 filters in the output layer -> for each - 198 * 198 * 32
+Now for 1000 images output is -> 1000 * 198 * 198 * 32
+| Quantity               | Description                         | Value                 |
+| ---------------------- | ----------------------------------- | --------------------- |
+| Input shape per image  | Height × Width × Channels           | 200 × 200 × 3         |
+| Filter shape           | Height × Width × Depth              | 3 × 3 × 3             |
+| # of filters           | # of feature maps (output channels) | 32                    |
+| Output shape per image | Height × Width × Channels           | 198 × 198 × 32        |
+| Output for batch       | N × H × W × Channels                | 1000 × 198 × 198 × 32 |
+
+Input -> Convolution layers -> (adding activation layer) -> FC Layer(Fully Connected Layer)
+
+Example of a input to convolution layer :
+| **Step** | **Layer / Operation**                   | **Details (What Happens)**                               | **Filter Shape** | **# of Filters** | **Input Shape**         | **Output Shape**         | **Explanation**                                                             |
+| :------- | :-------------------------------------- | :------------------------------------------------------- | :--------------- | :--------------- | :---------------------- | :----------------------- | :-------------------------------------------------------------------------- |
+| 1️⃣      | **Input**                               | Original dataset of images                               | —                | —                | **(1000, 200, 200, 3)** | —                        | 1000 RGB images, each of size 200×200×3                                     |
+| 2️⃣      | **Convolution Layer 1**                 | Extracts basic patterns (edges, colors, simple textures) | (3×3×3)          | 32               | (1000, 200, 200, 3)     | **(1000, 198, 198, 32)** | Each of 32 filters scans over RGB channels → produces 32 feature maps       |
+| 3️⃣      | **Convolution Layer 2**                 | Learns higher-level patterns (corners, curves, shapes)   | (3×3×32)         | 64               | (1000, 198, 198, 32)    | **(1000, 196, 196, 64)** | Each of 64 filters scans over 32 feature maps → produces 64 output channels |
+| 4️⃣      | *(Optional)* **Pooling**                | Reduces spatial dimensions (if used)                     | —                | —                | (1000, 196, 196, 64)    | (1000, 98, 98, 64)*      | *if MaxPooling(2×2) used* — halves height/width, keeps depth same           |
+| 5️⃣      | *(Optional)* **Flatten + Dense Layers** | Converts 3D feature maps to 1D and classifies            | —                | —                | (1000, 98, 98, 64)      | (1000, n_classes)        | Flatten then connect to fully connected (MLP) layers for final output       |
+
+Fully ConnectedLayer (FC) -> Takes only 1-D inputs, for the above it is 1000,196 * 196 * 64
+Then it goes to Output layer.
+
+Pooling ->	
+(Typically used to reduce the dimensions of feature maps.)
+• Pooling layer in CNN reduces dimensionality 
+• Makes computations easier 
+• Faster training 
+• Common Pooling techniques ->
+Max pooling     : Max pooling keeps the most prominent feature.
+Average Pooling : Average pooling keeps the overall presence of features.
+GlobalAveragePooling2D : Average of channel gives 1 pool/channel values. Similarly the no of channels -> 1 pool per channel.
+GlobalMaxPooling2D : Max of the channel gives 1 pool.channel values.Similarly the no of channels -> 1 pool per channel
+
+*** Note : Yes — for GlobalAveragePooling2D and GlobalMaxPooling2D, the stride doesn’t matter. ***
+
+Formula to calculate stride -> 
+(Output Height/Width)/Stride = (Input Height/Width)/Stride
+
+CNN Forward Propogation ->
+During the Forward Propogation in CNN -> the layers of the CNN extract feaures.
+The Hyperparameters -> 1.Number of Neurons, 2.Number Layers
+Note : the (weight matrix) and the (filter matrix) are parameters learned by the algorithm itself and then updated.
+
+The parameters in CNN are -> Weights, Filters, Bias  ( not error is considered a parameter)
+CNN Backward Propogation ->
+
+Note: In CNNs, “filters” and “weights” often refer to the same thing, 
+since each filter contains the set of weights applied during convolution.
+
+During the backward propogation the parameters in the network are updated.
+The gradient of the neural network parameter are calculated -> backward propogation.
+
+
+
