@@ -17,7 +17,25 @@ Once the model is read you can use it on the ->
 Prediction 
 1. Get predictions on new data
 
-Using VGG-16 : Pretrained Model
+Note : #preprocess input images according to requirements of VGG16 model
+X = preprocess_input(X, data_format=None)
+
+| Step                  | Effect on `X`      |
+| --------------------- | ------------------ |
+| RGB → BGR             | swap channels      |
+| Subtract channel mean | center around zero |
+| Keep scale ~ original | no division by 255 |
+
+#preprocess input images accordiing to requirements of VGG16 model
+X = preprocess_input(X, data_format='tf')
+| Format                       | Shape example                      |
+| ---------------------------- | ---------------------------------- |
+| `channels_last` (TensorFlow) | `(batch, height, width, channels)` |
+| `channels_first` (Theano)    | `(batch, channels, height, width)` |
+
+
+
+Using VGG-16(weights = 'imagenet') : Pretrained Model
 -> 1000 object classes (categories)
 Images : 1.2m train, 100k test
 
@@ -50,6 +68,92 @@ base_model = VGG16(weights='imagenet')
 
 #shows model summary
 base_model.summary()
+
+this also has a layer ->
+ flatten (Flatten)           (None, 25088)             0         
+                                                                 
+ fc1 (Dense)                 (None, 4096)              102764544 
+                                                                 
+ fc2 (Dense)                 (None, 4096)              16781312  
+                                                                 
+ predictions (Dense)         (None, 1000)              4097000 
+
+this is to flatten the output ->
+Flatten
+Dense(4096)
+Dense(4096)
+Dense(1000, activation='softmax')
+
+
+to remove this layers we can use : 
+# creating a VGG16 model with imagenet pretrained weights , accepting input of shape (224,224,3)
+# also remove the final layers from model(include_top= False)
+base_model = VGG16(weights='imagenet', input_shape=(224, 224, 3), include_top=False)
+
+so now the final output will me ->
+ block5_pool (MaxPooling2D)  (None, 7, 7, 512)         0 
+
+-> rather than flattening it.
+
+Now we look at the outputs on the x_train and x_valid because we have trained the model on using the imagent(VGG16) dataset -
+| Step | What             | Input                        | Output                                     |
+| ---- | ---------------- | ---------------------------- | ------------------------------------------ |
+| 1️⃣  | Split data       | `X`, `y`                     | `X_train`, `X_valid`, `y_train`, `y_valid` |
+| 2️⃣  | Extract features | `X_train`, `X_valid`         | `base_model_pred`, `base_model_pred_valid` |
+| 3️⃣  | Train classifier | `base_model_pred`, `y_train` | Learns mapping between features and labels | -> train 
+
+| Step | What                                                    | Input                              | Output                                                                   |
+| ---- | ------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------ |
+| 1️⃣  | **Split data**                                          | `X`, `y`                           | `X_train`, `X_valid`, `X_test`, `y_train`, `y_valid`, `y_test`           |
+| 2️⃣  | **Extract features** (feature maps from pretrained CNN) | `X_train`, `X_valid`, `X_test`     | `base_model_pred_train`, `base_model_pred_valid`, `base_model_pred_test` |
+| 3️⃣  | **Train classifier**                                    | `base_model_pred_train`, `y_train` | Learns mapping between features and labels                               |
+| 4️⃣  | **Validate classifier**                                 | `base_model_pred_valid`, `y_valid` | Tunes hyperparameters, checks for overfitting                            |
+| 5️⃣  | **Test final model**                                    | `base_model_pred_test`, `y_test`   | Measures final accuracy and performance on unseen data                   |
+-> train + test
+
+
+1. this trains the features from the imgent dataset to our own, then we use to learn it on our dataset. Then, test it.
+That is why first we use the x_train , x_valid --- then y_train and y_valid
+
+once we get the x_train and x_valid, we normalize the dataset to between 0 and 1 ( after converting into a 1d array)
+# checking the min and max of the extracted features
+base_model_pred.min(), base_model_pred.max()
+
+#get maximum value from generated features
+max_val = base_model_pred.max()
+
+#normalizing features generated from the VGG16 model to [0,1]
+base_model_pred = base_model_pred / max_val
+base_model_pred_valid = base_model_pred_valid / max_val
+base_model_pred.min(), base_model_pred.max()
+
+normalizing both -> base_model_pred and base_model_pred_valid
+Note: here we find the max for the train, but then use the same to normalize the valid because to keep the scale same. 
+This is basic preprocessing step important.
+
+# compile the model
+model.compile(optimizer='sgd', metrics=['accuracy'], loss='categorical_crossentropy')
+
+loss='categorical_crossentropy' ->
+When you have more than two classes (multiclass classification).
+Labels are one-hot encoded: [0,0,1,0,...]
+Output layer usually has N neurons with softmax activation (N = number of classes).
+
+# compiling the model
+model.compile(loss='binary_crossentropy', optimizer="sgd", metrics=['accuracy'])
+
+loss='binary_crossentropy' ->
+When you have two classes only (e.g., 0/1, Yes/No, Cat/Dog).
+Output layer usually has 1 neuron with sigmoid activation.
+
+
+Different ways to fine tune the model (step5 in implementation)->
+| Strategy               | Pretrained Layers                  | New Classifier Layers | Training                               |
+| ---------------------- | ---------------------------------- | --------------------- | -------------------------------------- |
+| 1️⃣ Feature Extraction | Frozen                             | Train                 | Only classifier trained                |
+| 2️⃣ Use Architecture   | Frozen / optional                  | Train                 | Only classifier or all layers optional |
+| 3️⃣ Fine-tuning        | Partial frozen / partial trainable | Train                 | Some pretrained layers updated         |
+
 
 
 
