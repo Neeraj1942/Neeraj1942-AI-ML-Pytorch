@@ -19,6 +19,8 @@ Prediction
 
 Note : #preprocess input images according to requirements of VGG16 model
 X = preprocess_input(X, data_format=None)
+data_format=None :
+sets it to channels first or last automatically accoring to the dataset 
 
 | Step                  | Effect on `X`      |
 | --------------------- | ------------------ |
@@ -28,6 +30,7 @@ X = preprocess_input(X, data_format=None)
 
 #preprocess input images accordiing to requirements of VGG16 model
 X = preprocess_input(X, data_format='tf')
+THIS IS VERY OLD VERSION AND THE BEST VERSION IS TO USE. (mode='tf', means channels_last -> batch,24,24,channels format)
 | Format                       | Shape example                      |
 | ---------------------------- | ---------------------------------- |
 | `channels_last` (TensorFlow) | `(batch, height, width, channels)` |
@@ -85,7 +88,7 @@ Dense(4096)
 Dense(1000, activation='softmax')
 
 
-to remove this layers we can use : 
+to remove this layers we can use : ( we do this because VGG16 has 1000 layes in the output, we only need 2 neurons)
 # creating a VGG16 model with imagenet pretrained weights , accepting input of shape (224,224,3)
 # also remove the final layers from model(include_top= False)
 base_model = VGG16(weights='imagenet', input_shape=(224, 224, 3), include_top=False)
@@ -155,5 +158,25 @@ Different ways to fine tune the model (step5 in implementation)->
 | 3️⃣ Fine-tuning        | Partial frozen / partial trainable | Train                 | Some pretrained layers updated         |
 
 
+1. Using the architecture of the pretrained model
 
+We have 4 layers in the last ->
+| Index | Layer (example)            |
+| ----- | -------------------------- |
+| -1    | `predictions` (Dense 1000) |
+| -2    | `fc2` (Dense 4096)         |
+| -3    | `fc1` (Dense 4096)         |
+| -4    | `flatten`                  |
 
+what we do is connect the 2 layers we code, then add it to the -4 flatten layers ->
+code ->
+x = Dense(100, activation='relu')(base_model.layers[-4].output)
+y = Dense(2, activation='softmax')(x)
+my_model = Model(inputs=base_model.input, outputs=y)
+Note : Effectively, you are ignoring the original top 3 layers (fc1, fc2, predictions) and adding your own.
+
+base_model.layers[-4].output = tensor output of the flatten layer
+Using it allows you to replace the top fully connected layers without touching the convolutional base.
+
+Note : In feature extraction, we freeze the pre-trained model weights only get the features from the model, and train our model on the features.
+When using only the architecture of the model, we re-train the model to get new weights based on our dataset
