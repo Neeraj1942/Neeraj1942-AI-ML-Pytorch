@@ -1,0 +1,55 @@
+Transfer Learning : Learning from already pretrained models.
+Types of models ->
+1️⃣ BERT – A transformer-based NLP model pretrained on large text corpora for language understanding.
+2️⃣ ULMFiT – A transfer learning approach for NLP using pretrained language models fine-tuned for specific tasks.
+3️⃣ VGG16 trained on ImageNet – A deep CNN pretrained on millions of real-world images across 1000 classes.
+4️⃣ VGG16 trained on MNIST – The same CNN architecture trained on handwritten digit images (grayscale, 10 classes).
+
+Training Part ->
+1. Import neccessary models
+2. Load data  
+3. Pre Process Data
+4. Load weights of pre trained model
+5. Fine tune the model for current problem
+6. Validate if it works fine, iterate again if it does not
+
+Once the model is read you can use it on the ->
+Prediction 
+1. Get predictions on new data
+
+Using VGG-16 : Pretrained Model
+-> 1000 object classes (categories)
+Images : 1.2m train, 100k test
+
+from tensorflow.keras.utils import to_categorical
+# Example class labels
+y = [0, 1, 2, 1]
+
+# Convert to one-hot encoding
+y_encoded = to_categorical(y)    
+
+print(y_encoded) ->
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]
+ [0. 1. 0.]]
+
+x = preprocess_input(x, mode='tf')  
+x is the input ; mode ->
+| Mode      | What it does                                                                  | Typical use                                      |
+| --------- | ----------------------------------------------------------------------------- | ------------------------------------------------ |
+| `'tf'`    | Scales pixel values from `[0, 255]` → `[-1, 1]`                               | TensorFlow models (e.g., MobileNet, InceptionV3) |
+| `'caffe'` | Converts `RGB → BGR` and subtracts ImageNet mean `[103.939, 116.779, 123.68]` | Original Caffe-trained models like VGG16/VGG19   |
+| `'torch'` | Normalizes to mean `[0.485,0.456,0.406]` and std `[0.229,0.224,0.225]`        | PyTorch-style models                             |
+| `None`    | No preprocessing; returns raw input                                           | Only if you want custom preprocessing            |
+
+Note : This process is to change the dataset to (-1,1)
+
+# creating model with pre trained imagenet weights
+base_model = VGG16(weights='imagenet')
+
+#shows model summary
+base_model.summary()
+
+
+
