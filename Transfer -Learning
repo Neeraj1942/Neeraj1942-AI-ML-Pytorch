@@ -1,3 +1,4 @@
+
 Transfer Learning : Learning from already pretrained models.
 Types of models ->
 1️⃣ BERT – A transformer-based NLP model pretrained on large text corpora for language understanding.
@@ -16,6 +17,9 @@ Training Part ->
 Once the model is read you can use it on the ->
 Prediction 
 1. Get predictions on new data
+
+from tensorflow.keras.applications.vgg16 import preprocess_input
+X = preprocess_input(X) -> automatically preprocess the inputs , becuse it was imported from VGG16 dataset.
 
 Note : #preprocess input images according to requirements of VGG16 model
 X = preprocess_input(X, data_format=None)
@@ -180,3 +184,73 @@ Using it allows you to replace the top fully connected layers without touching t
 
 Note : In feature extraction, we freeze the pre-trained model weights only get the features from the model, and train our model on the features.
 When using only the architecture of the model, we re-train the model to get new weights based on our dataset
+
+
+| Option                                                   | What It Does | Works for This Task?     | Why                                  |
+| -------------------------------------------------------- | ------------ | ------------------------ | ------------------------------------ |
+| Fine-tune last few layers + replace last with regression | ✅            | Yes                      | Converts classifier → localizer      |
+| Freeze all except last layer                             | ❌            | No                       | Won’t adapt to regression outputs    |
+| Retrain entire model                                     | ⚠️           | Possible but inefficient | Overkill — discards learned features |
+| None                                                     | ❌            | No                       | The first option fits perfectly      |
+
+# get predictions
+predictions = my_model.predict(X_valid) -> This gives you a matrix of probabilities, one row per input image.
+predicted_class = np.argmax(predictions,axis=1)  -> It picks the index of the largest value along each row.
+
+2. Freezing few layers and training others ->
+So basically , we do remove the last layers add our own dense layers into the module
+# creating our own model 
+x = Dense(100, activation='relu', name='fc1')(base_model.layers[-4].output)
+y = Dense(2, activation='softmax', name='prediction')(x)
+my_model = Model(input=base_model.input, output=y)
+my_model.summary()
+
+my_model.layers -> gives 22 , (i.e there are 22 layers)
+
+we want to freeze some of the layers and use weights of the pretrained model as the starting point, 
+then we train the remaining layers to our dataset, 
+
+#To set the first 15 layers to non-trainable (weights will not be updated)
+for layer in my_model.layers[:15]:
+    layer.trainable = False 
+
+then we train the model ->
+# compile the model
+my_model.compile(optimizer='sgd', metrics=['accuracy'], loss='categorical_crossentropy')
+# training the model
+my_model.fit(X_train, y_train, epochs=10, validation_data=(X_valid, y_valid))
+
+So during .fit(), the gradient descent optimizer will skip these layers:
+-> Their weights and biases will remain exactly as they were in the pre-trained ImageNet model.
+-> Only the unfrozen layers (after layer 15 and your new Dense layers) will be updated.
+
+| Case | Layers Trained      | Description                          | Type of Transfer Learning | When to Use                                           |
+| ---- | ------------------- | ------------------------------------ | ------------------------- | ----------------------------------------------------- |
+| 1    | All layers          | Entire model retrained on your data  | **Fine-tuning**           | When you have a large dataset similar to ImageNet     |
+| 2    | Only top few layers | Base frozen, only classifier trained | **Feature Extraction**    | When you have a small dataset or want faster training |
+
+Basically the 3 models are compared below ->
+| **Aspect**                     | **Model 1: Feature Extraction (Use Pretrained Features Only)**                                                                          | **Model 2: Use Pretrained Architecture (Train All Layers)**                                                                                                      | **Model 3: Partial Fine-Tuning (Freeze Some Layers)**                                                                                             |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Core Idea**                  | Use pretrained VGG16 as a **feature extractor** — only feed-forward to get features, then train a new small classifier on top.          | Use the **entire VGG16 architecture** (including convolutional layers) and add new dense layers — **train everything from scratch**.                             | Use pretrained VGG16 but **freeze some initial layers** and **train the remaining layers** (fine-tuning).                                         |
+| **Implementation Summary**     | 1️⃣ Load `VGG16(include_top=False)`<br>2️⃣ Generate features using `base_model.predict()`<br>3️⃣ Flatten & train a small dense network. | 1️⃣ Load `VGG16(weights='imagenet')`<br>2️⃣ Attach new Dense layers after a mid-layer (`base_model.layers[-4].output`)<br>3️⃣ Train the full model (all layers). | 1️⃣ Load `VGG16(weights='imagenet')`<br>2️⃣ Add custom Dense layers<br>3️⃣ **Freeze first 15 layers**<br>4️⃣ Train remaining layers + top layers. |
+| **Which layers are trained?**  | ❌ None of VGG16 are trained (all frozen). Only your new Dense layers are trained.                                                       | ✅ All layers (including VGG16 convolutional filters) are retrained and updated.                                                                                  | 🟡 Only last few layers (unfrozen ones) are trained. Earlier layers stay frozen.                                                                  |
+| **Weights used from ImageNet** | ✔️ Yes — used for feature extraction only.                                                                                              | ✔️ Yes — used as initialization, then modified during training.                                                                                                  | ✔️ Yes — early layer weights reused (frozen), late layers fine-tuned.                                                                             |
+| **Output from base model**     | `(7×7×512)` feature maps flattened to a vector.                                                                                         | Actual activations are used inside the computational graph — model retrains all layers end-to-end.                                                               | Same as Model 2, but with early layers frozen (partial backprop).                                                                                 |
+| **Training speed**             | ⚡ Fastest (only small dense network trained).                                                                                           | 🐢 Slowest (entire network retrains).                                                                                                                            | ⚖️ Medium (partially frozen, so less computation).                                                                                                |
+| **Compute cost / Memory**      | Low                                                                                                                                     | High                                                                                                                                                             | Medium                                                                                                                                            |
+| **Accuracy potential**         | 🟠 Good when dataset is small — avoids overfitting.                                                                                     | 🔵 High potential, but overfits easily if data is small.                                                                                                         | 🟢 Usually best balance — adapts model to new data while leveraging pretrained stability.                                                         |
+| **Overfitting risk**           | Low                                                                                                                                     | High                                                                                                                                                             | Moderate                                                                                                                                          |
+| **Fine-tuning flexibility**    | None — features fixed.                                                                                                                  | Full fine-tuning (all weights).                                                                                                                                  | Partial fine-tuning — selective adaptation.                                                                                                       |
+| **Example Use Case**           | When you have **very limited data** or just need quick transfer.                                                                        | When you have **large dataset** similar to ImageNet.                                                                                                             | When you have **moderate data** or slightly different domain.                                                                                     |
+| **Backpropagation**            | Only through custom classifier layers.                                                                                                  | Through all layers.                                                                                                                                              | Through unfrozen layers only.                                                                                                                     |
+| **Concept name**               | **Feature Extraction Transfer Learning**                                                                                                | **Full Fine-Tuning Transfer Learning**                                                                                                                           | **Partial Fine-Tuning Transfer Learning**                                                                                                         |
+
+
+In short ->
+| **Model #**                 | **What Happens**                                                                                               | **When to Use**                                     |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **1️⃣ Feature Extraction**  | Use pretrained CNN purely as a **fixed feature extractor**. You only train a small classifier (Dense network). | ✅ Small dataset, limited compute.                   |
+| **2️⃣ Full Fine-Tuning**    | Train **entire model**, including pretrained CNN layers, from start to end.                                    | ⚠️ Larger dataset, more compute, similar domain.    |
+| **3️⃣ Partial Fine-Tuning** | Freeze some layers (usually earlier convolution blocks) and train remaining ones.                              | 💪 Balanced case — adapt to new domain efficiently. |
+
