@@ -127,3 +127,53 @@ Basically we remove the batch and filters and just print the image (i.e (224,224
 
 Similarly we plot this for all the diiferent layers of the image.
 
+This part of the code :
+image = image.reshape((1, image.shape[0], image.shape[1], image.shape[2]))
+
+#extracting the output and appending to outputs
+for layer_name in layer_names:
+    intermediate_layer_model = Model(inputs=model.input,outputs=model.get_layer(layer_name).output)
+    intermediate_output = intermediate_layer_model.predict(image)
+    outputs.append(intermediate_output)
+    
+Deatiled explanation ->
+Input / batch shape :
+Keras expects input with a batch dimension: (batch_size, height, width, channels).
+Your input_shape=(224,224,3) means each sample (without batch) is (224,224,3).
+If you feed a single image, you must reshape it to include batch:
+image.reshape((1, 224, 224, 3)) → shape = (1, 224, 224, 3).
+
+conv1: Conv2D(32, (7,7), input_shape=(224,224,3)) :
+Kernel weight shape: (7, 7, input_channels=3, output_channels=32)
+Bias shape: (32,) (one bias per filter)
+Output shape after conv1: (batch, 218, 218, 32) → (1, 218, 218, 32)
+
+lrelu1: LeakyReLU : Shape unchanged: (1, 218, 218, 32)
+
+pool1: MaxPooling2D(pool_size=(4,4)) :
+With pool_size=(4,4) and strides=pool_size, output size computed as
+Shape after pool1: (1, 54, 54, 32)
+
+conv2: Conv2D(32, (7,7)) :
+Kernel shape: (7, 7, input_channels=32, output_channels=32)
+Output spatial size: 54 - 7 + 1 = 48
+Shape after conv2: (1, 48, 48, 32)
+
+lrelu2 : Shape unchanged: (1, 48, 48, 32)
+
+pool2: MaxPooling2D(pool_size=(4,4)) :
+out = floor((48 - 4)/4) + 1 = floor(44/4) + 1 = 11 + 1 = 12
+Shape after pool2: (1, 12, 12, 32)
+
+conv3: Conv2D(32, (7,7)) :
+Kernel shape: (7, 7, 32, 32)
+Output spatial size: 12 - 7 + 1 = 6
+Shape after conv3: (1, 6, 6, 32)
+Bias : 1 bias per filter
+
+model.predict(image) : Accepts input array with shape (batch_size, H, W, C).
+
+Kernels and Biases : 
+model.get_layer('conv1').get_weights()[0].shape  # kernel
+model.get_layer('conv1').get_weights()[1].shape  # bias
+
