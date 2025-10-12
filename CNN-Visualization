@@ -1,0 +1,129 @@
+Why is it important to visualize the NN ->
+A To understand how the model is working
+B To ensure that model is learning the right features
+C To find out how is the model generating the output
+
+NN are called blackbox algorithm ? ->
+We can observe the input and output,
+But the internal logic or decision process is hard to interpret or explain.
+
+Attempts to Interpret a Neural Network
+We can
+• Understand the model architecture
+• Visualize the filters / weights
+• Extract the output of intermediate neurons /layers
+. Locate important parts of the image according to the model
+
+keras-vis (and its modern fork tf-keras-vis) works primarily with CNNs, but technically you can use it with any Keras model that has a clear mapping 
+from input → output and where gradient-based visualization makes sense.
+
+1. Understand the model architecture ->
+pip install -U -I git+https://github.com/raghakot/keras-vis.git
+
+We use this to test the model architecture to break it down
+
+To print the model summary we do ->
+# summary of the model
+model.summary()
+
+It tell us about ->
+The model summary of the architecture can give you which of the following values-
+A. Number of layers in the architecture
+B. Number of neurons in the layers in the network
+C. Number of trainable parameters in the network
+
+Layers which have trainable parameters are - 
+1. Convolution Layers
+2. Fully Connected Layers
+
+2. Visualize the filters / weights ->
+When we try to visualize the weights of a hidden network it will just be a vector of weights, 
+the weights depict the intensity of connection between one layer to another.
+
+First layers of the cnn is usually RGB format so easily we can depict.
+But once we do deeper into the neural network, it becomes difficult, ( i.e no of channels will the number of filters used in previous layers)
+
+.get_layer('convo1') -> this helps to select a prticular layer ( Note: we have named these layers in the model architecture)
+.get_weights() to select the weights of the filter values
+
+temp = model.get_layer('conv1').get_weights()[0][:, :, :, 0]
+Explanation : 
+model.get_layer('conv1') → Fetches the layer named 'conv1' from your model.
+.get_weights() → Returns the weights of the layer as a list:
+For Conv2D, it's usually [kernel, bias].
+kernel shape: (height, width, input_channels, output_channels)
+[0] → Selects the kernel weights (ignoring the biases).
+[:, :, :, 0] → Selects all spatial values and all input channels for the first output filter (i.e., the first convolutional filter)
+
+temp -= temp.min()
+temp /= temp.max()
+-> this step is to normalize the weights to range [0,1]
+
+plt.imshow(temp) -> to plot the weights
+
+Code ->
+#plot the filters
+fig,ax = plt.subplots(nrows=3,ncols=3, figsize=(10, 10))
+
+filter_no = 1
+for i in range(3):
+    for j in range(3):
+        temp = model.get_layer('conv1').get_weights()[0][:, :, :, filter_no - 1]
+        temp -= temp.min()
+        temp /= temp.max()
+        ax[i][j].imshow(temp)
+        ax[i][j].set_title('conv1' + '_filter' + str(filter_no))
+        ax[i][j].set_xticks([])
+        ax[i][j].set_yticks([])
+        filter_no += 1
+Explanation ->
+| **Step** | **Code Snippet**                                                           | **Explanation**                                                                                                                                     |
+| -------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1        | `fig, ax = plt.subplots(nrows=3,ncols=3, figsize=(10, 10))`                | Creates a **3x3 grid of subplots** to display 9 filters. `figsize` sets the figure size.                                                            |
+| 2        | `filter_no = 1`                                                            | Initializes a **counter** for filter numbers.                                                                                                       |
+| 3        | `for i in range(3):` <br> `for j in range(3):`                             | Loops through **rows (i) and columns (j)** of the subplot grid.                                                                                     |
+| 4        | `temp = model.get_layer('conv1').get_weights()[0][:, :, :, filter_no - 1]` | Extracts the weights of the **`filter_no`-th filter** from the `conv1` layer. The weights shape is `(kernel_height, kernel_width, input_channels)`. |
+| 5        | `temp -= temp.min()` <br> `temp /= temp.max()`                             | **Normalizes the filter values** to `[0,1]` for proper visualization.                                                                               |
+| 6        | `ax[i][j].imshow(temp)`                                                    | Plots the normalized filter as an **image** in the subplot.                                                                                         |
+| 7        | `ax[i][j].set_title('conv1' + '_filter' + str(filter_no))`                 | Sets the **title** of the subplot to indicate the filter number.                                                                                    |
+| 8        | `ax[i][j].set_xticks([])` <br> `ax[i][j].set_yticks([])`                   | Removes **axis ticks** for a cleaner plot.                                                                                                          |
+| 9        | `filter_no += 1`                                                           | Moves to the **next filter** for the next subplot.                                                                                                  |
+
+Parameters in the CNN architecture is ->
+1. Filters
+2. Weights
+3. Biases
+
+Note : Visualizing weights is the most predictable in the first layers of the CNN, i.e it is in the RGB format
+
+3. Extract the output of intermediate neurons /layers
+Normally the output is at the last convolutional layer, but we can take this output at different levels and plot them as image. (mostly convolutional layers only)
+Why ? ->
+Convolutional layers produce feature maps (2D or 3D arrays), which are easy to visualize as images.
+Fully connected (Dense) layers produce flat vectors, which are hard to interpret visually.
+
+| **Code**                                                                                        | **Explanation**                                                                                                                         |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `from keras.models import Model`                                                                | Imports the Keras `Model` class, which allows creating models that output intermediate layers.                                          |
+| `eg_image_idx = 5`<br>`image = X_train[eg_image_idx]`                                           | Selects the 6th image from the training set to visualize.                                                                               |
+| `image = image.reshape((1, image.shape[0], image.shape[1], image.shape[2]))`                    | Reshapes the image to include batch dimension. New shape: `(1, height, width, channels)`.                                               |
+| `intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer('conv1').output)` | Creates a new model that takes the same input as the original model but outputs the **feature maps** of the `conv1` layer.              |
+| `intermediate_output = intermediate_layer_model.predict(image)[0, :, :, 0]`                     | Runs the image through the intermediate model. `[0, :, :, 0]` selects the **first image** in batch and the **first filter** of `conv1`. |
+| `plt.imshow(intermediate_output, cmap='gray')`                                                  | Plots the selected filter’s feature map as a grayscale image to visualize what the filter detects.                                      |
+
+[0, :, :, 0] indexing ->
+The output of predict() is a 4D tensor. Let’s break down the indexing:
+| Index       | Meaning                                                         |
+| ----------- | --------------------------------------------------------------- |
+| `[0, ...]`  | Selects the **first image in the batch** (since batch size = 1) |
+| `[:, :, :]` | Selects **all rows and all columns** of the feature map         |
+| `[..., 0]`  | Selects the **first filter/channel** of the convolutional layer |
+
+Basically we remove the batch and filters and just print the image (i.e (224,224), which shows ->
+| Dimension      | Meaning                                                                                         |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| `224` (first)  | **Number of rows** in the feature map → corresponds to **vertical positions** in the image      |
+| `224` (second) | **Number of columns** in the feature map → corresponds to **horizontal positions** in the image |
+
+Similarly we plot this for all the diiferent layers of the image.
+
