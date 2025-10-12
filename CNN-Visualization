@@ -177,3 +177,49 @@ Kernels and Biases :
 model.get_layer('conv1').get_weights()[0].shape  # kernel
 model.get_layer('conv1').get_weights()[1].shape  # bias
 
+ax[i][z].imshow(outputs[i][0,:,:,z], cmap='gray')
+cmap ->
+| Term          | Meaning                                                     |
+| ------------- | ----------------------------------------------------------- |
+| `cmap`        | “Colormap” — how numerical values are mapped to colors      |
+| Common choice | `'gray'` for single-channel CNN feature maps                |
+| Purpose       | Makes it possible to visually interpret feature activations |
+
+Explanatio for why we pass only input and output inthe model() :
+input → conv1 → relu1 → pool1 → conv2 → relu2 → dense → output
+intermediate = Model(inputs=model.input, outputs=model.get_layer('conv2').output)
+input → conv1 → relu1 → pool1 → conv2
+Note : Now you’re defining a Model object, not a single layer
+
+
+4. Locating the important parts of the image : 
+If we consider an image and remoe a small patch from it, then it helps to predict if the model is still emergency vehicle or not. (i.e predict = accuracy)
+When we do this for the whole image and then calculate the percentages and create a heat map of those percentages it is called the occlusion map.
+
+1. Occlusion Maps : The heat map of those percentages is Occlusion map/also called occlusion sensitivity map.
+The values depict how confident is the image about the class(image emergency or not), without a particular patch.
+
+Now we have a huge ass code for creating the occlusion map.
+
+2. Saliency Maps : It’s essentially a gradient-based visualization that tells you how sensitive the output is to small changes in each input pixel.
+
+Forward and backwards pass -> get gradients at each layer -> check the gradients to the nearest layers to the input layer -> 
+it tells us how much the output changes with a small change in the input image pixels
+Positive values -> tells us a small change to that particular pixel imcreases the ouput value.
+
+Code for saliency maps : 
+from vis.visualization import visualize_saliency
+from vis.utils import utils
+from keras import activations
+
+# Utility to search for layer index by name. 
+layer_idx = utils.find_layer_idx(model, 'preds')
+
+# Swap softmax with linear
+model.layers[layer_idx].activation = activations.linear
+model = utils.apply_modifications(model)
+
+grads = visualize_saliency(model, layer_idx, filter_indices=0, 
+                    seed_input=X_train[eg_image_idx], backprop_modifier='guided')
+plt.imshow(grads, cmap='jet')
+
