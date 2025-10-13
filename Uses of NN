@@ -1,0 +1,27 @@
+Classification of structured Data using a NN  -> Loan to give/ or not
+Image classificaition using ANN and CNN
+Regression using deep learning -> read numpy array -> use a nn model -> we use linear activation function at the ouput
+Object Detection -> make several boxes in an image and check if the object contains that image or not.
+Image segmentation -> pixel level classification, classificatin is being done at the pixel level
+
+Solving tabular data ->  MLP 
+Regression models -> we can use CNN , even though main task is image processing and segmentation
+
+| Task                     | Answers                   | Output         | Example Models    | Granularity  |
+| ------------------------ | ------------------------- | -------------- | ----------------- | ------------ |
+| **Image Classification** | *What?*                   | Label          | VGG16, ResNet     | Whole image  |
+| **Object Detection**     | *What + Where?*           | Boxes + Labels | YOLO, SSD         | Object level |
+| **Image Segmentation**   | *What + Where (exactly)?* | Pixel mask     | U-Net, Mask R-CNN | Pixel level  |
+
+Note : Background substraction is used in Image Segmenttation. (i.e removing the noise from the background)
+
+Sequential Modelling ->
+Continuous data -> where the data makes more sense when we analyse the previous data.
+we analyse the previpus data then learn from it and then use that data to build a prediction.(i.e Time series forecasting)
+Applicston ->
+1. Time Series Forecasting
+2. Speech Recognition : speech to text
+3. Sentiment analysis application in Speech recognition
+4. Search queries for a search engine 
+5. Chatbots
+6. Summarization
