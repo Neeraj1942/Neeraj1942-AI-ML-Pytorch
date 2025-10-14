@@ -1,0 +1,14 @@
+Corpus : A large set of texts
+Corpus -> Documents ,tweets, emails -> sentences -> tokens
+
+Tokens : Smaller Units of text (words, characters, n-grams)
+N-gram : is a collection of N consecutive tokes (i.e 
+Sentence: "I love this town"
+Unigrams (n=1): I, love, this, town 
+Bigrams (n=2): I love, love this, this town 
+Trigrams (n=3): I love this, love this
+Note: Observe that the words are repeated in bigram and trigram. ( ALSO THEY CAN BE DEFINED FOR WORDS/CHARECTERS ALSO)
+
+Tokenization ->
+1. White Space Tokenizor : Splits the i.e sentences using the white spaces between the words.
+2. Smart Tokenizor(spaCy library) : Splits complex nested tokes -> punctuation marks.(i.e "!" ....) -> (i.e Let's -> " Let " , " 's ") 
