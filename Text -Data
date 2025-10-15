@@ -12,3 +12,229 @@ Note: Observe that the words are repeated in bigram and trigram. ( ALSO THEY CAN
 Tokenization ->
 1. White Space Tokenizor : Splits the i.e sentences using the white spaces between the words.
 2. Smart Tokenizor(spaCy library) : Splits complex nested tokes -> punctuation marks.(i.e "!" ....) -> (i.e Let's -> " Let " , " 's ") 
+
+Text Preprocessing ->
+1. Text Cleaning -> Cleaning the text.
+Text noise : The unwanted parts of the text. (i.e Unwanted sysbols, Urls tags, html tags)
+examples ->
+a. URL's, punctuation makrs, numbers
+b. Text slangs, non dictionary words, (swag,bro,dope ..etc)
+c. Spelling mistakes.(cntrol, plye, finaly...etc)
+
+Fix text encoding and casing-> 
+a. ASCII code(english), West Europe(Latin), Big5(Chinese)
+b. Universally accepted coding is UTF-8. 
+c. Lowercase entire text
+
+Then we remove the noise from the text.
+
+Regular expression or Regex : A tool used for patterns in the text.
+Patterns are special charecters with an associated with anassociated textual meaning.(i.e '\d' is used to identify digits, '\w' is used to identify alphanumeric characters)
+
+Next steps in this course are :
+1. Important RegEx methods. 
+2. RegEx - special sequences.
+3. RegEx Metacharecters.
+4. RegEx Sets.
+5. Practice problems in RegEx.
+
+1. Important RegEx methods :
+a. re.match() -> function returns a match object on success and none on failure.(Note : only if the position is also matched, changes to thr string results in 'None' return)
+
+result = re.match('Analytics','Analytics Vidhya is the largest data science community of India') 
+print(result)
+Output : sunccess object
+
+result_2 = re.match('largest','Analytics Vidhya is the largest data science community of India') 
+print(result_2)
+Output : None 
+
+Now later to check the get the matched object we do :
+print(result.group()) 
+output -> Analytics
+
+b. re.search() -> checks if the string1, is present in string2 ( Note : does not care the position and reoccurence of the same)
+
+result = re.search('founded','Andrew NG founded Coursera. He also founded deeplearning.ai')
+print(result.group())
+output : founded
+
+c. re.findall() -> returns all the occurences in the string. ( i.e if 2 same elements , return them 2 times)
+
+result = re.search('founded','Andrew NG founded Coursera. He also founded deeplearning.ai')
+print(result.group())
+Output : ['founded', 'founded']
+
+d. re.sub() -> returns the string where matched occurences are replaced with the new string.
+
+result = re.sub('He', 'Andrew NG', 'Andrew NG founded Coursera. He also founded deeplearning.ai')  
+print(result)
+Ouput : Andrew NG founded Coursera. Andrew NG also founded deeplearning.ai
+
+result = re.sub('also', '', 'Andrew NG founded Coursera. He also founded deeplearning.ai')  
+print(result)
+Output : Andrew NG founded Coursera. He  founded deeplearning.ai
+
+
+2. RegEx - special sequences ->
+
+a. '\b' returns a match where the specified pattern is at the beginning or at the end of a word.
+
+# Check if there is any word that ends with "est"
+x = re.findall(r"ics\b", "Analytics Vidhya is one of the largest data science communities")
+print(x)
+Ouput : ['ics']
+
+Note : ics\b , \bics, \bics\b : all these are different. ( \B
+x = re.findall(r"ics\b", "Analytics Vidhya is one of Analytics the largest data science communities")
+print(x)
+Ouput : ['ics','ics']
+| Pattern   | Meaning                    | Example Match   |
+| --------- | -------------------------- | --------------- |
+| `\bcat\b` | “cat” as a whole word      | `"the cat sat"` |
+| `\bcat`   | word starting with “cat”   | `"catfish"`     |
+| `cat\b`   | word ending with “cat”     | `"wildcat"`     |
+| `\Bcat`   | “cat” inside a larger word | `"scatter"`     |
+
+
+b .  '\d' and '\d+'
+1.'\d' returns a match when the string contains digits (numbers from 0-9) :
+
+str = "2 million monthly visits in Jan'19."
+# Check if the string contains any digits (numbers from 0-9):
+x = re.findall("\d", str)
+print(x)
+Ouput : ['2', '1', '9']
+
+2. '\d+' returns a match when the string contains digits (numbers from 0-9), till keeps on adding to the string till found a space :
+
+str = "2 million monthly visits in Jan'19."
+# Check if the string contains any digits (numbers from 0-9):
+# adding '+' after '\d' will continue to extract digits till encounters a space
+x = re.findall("\d+", str)
+print(x)
+Ouput : ['2', '19']
+
+| Pattern | Meaning                           | Example Match in `"Order123"` |
+| ------- | --------------------------------- | ----------------------------- |
+| `\d`    | Any one digit                     | `"1"`, `"2"`, `"3"`           |
+| `\d+`   | One or more digits (whole number) | `"123"`                       |
+
+
+Note : We can infer that **\d+** repeats one or more occurences of **\d** till the non maching character is found where as **\d** does character wise comparison.
+
+c. '\w' helps in extraction of alphanumeric characters only (characters from a to Z, digits from 0-9, and the underscore _ character) :
+
+str = "2 million monthly visits!"
+
+str = "2 million monthly visits!"
+x = re.findall("\w",str)
+print(x)
+Output : ['2', 'm', 'i', 'l', 'l', 'i', 'o', 'n', 'm', 'o', 'n', 't', 'h', 'l', 'y', 'v', 'i', 's', 'i', 't', 's']
+
+x = re.findall("\w+",str)
+print(x)
+Ouput : ['2', 'million', 'monthly', 'visits'] 
+Note : \w+ -> return the strings till it finds a space
+
+| **Pattern** | **Meaning**                               | **Example**          | **Output**                                              |
+| ----------- | ----------------------------------------- | -------------------- | ------------------------------------------------------- |
+| `\w`        | Single word character                     | `"Python_3 is fun!"` | `['P','y','t','h','o','n','_','3','i','s','f','u','n']` |
+| `\w+`       | One or more word characters               | `"Python_3 is fun!"` | `['Python_3','is','fun']`                               |
+| `\W`        | Non-word characters (spaces, punctuation) | `"Python_3 is fun!"` | `[' ', ' ', '!']`                                       |
+
+
+3. RegEx Metacharecters. -> Metacharacters are characters with a special meaning
+
+a. '(.)' matches any character (except newline character) :
+
+str = "rohan and rohit recently published a research paper!" 
+# search for a string that starts with "ro", followed by 1 character
+x = re.findall("ro.", str)
+print(x)
+Ouput : ['roh', 'roh']
+
+# search for a string that starts with "ro", followed by three characters
+x2 = re.findall("ro...", str)
+print(x2)
+Ouput : ['rohan', 'rohit']
+
+| **Pattern** | **Meaning**                                             | **Example** | **Output**             |
+| ----------- | ------------------------------------------------------- | ----------- | ---------------------- |
+| `.`         | Matches **any single character** except newline `\n`    | `"Py3!"`    | `['P', 'y', '3', '!']` |
+| `.+`        | Matches **one or more** of any character (except `\n`)  | `"Py3!"`    | `['Py3!']`             |
+| `.*`        | Matches **zero or more** of any character (except `\n`) | `"Py3!"`    | `['Py3!']`             |
+
+
+b. '(^)' starts with, i.e checks if the string starts with the given substring.
+str = "Data Science"
+#Check if the string starts with 'Data':
+x = re.findall("^Data", str)
+if (x):
+  print("Yes, the string starts with 'Data'")
+else:
+  print("No match")
+Output : Yes, the string starts with 'Data' 
+
+# try with a different string
+str2 = "Big Data"
+#Check if the string starts with 'Data':
+x2 = re.findall("^Data", str2)
+if (x2):
+  print("Yes, the string starts with 'data'")
+else:
+  print("No match")
+Output : No match
+
+| Pattern    | Meaning                      | Output       |
+| ---------- | ---------------------------- | ------------ |
+| `Python^`  | literal `"Python^"`          | `[]`         |
+| `^Python^` | line starts with `"Python^"` | `[]`         |
+| `^Python`  | line starts with `"Python"`  | `['Python']` |
+
+
+c. '($)' ends with, i.e if the string ends with the given substring :
+
+str = "Data Science"
+#Check if the string ends with 'Science':
+x = re.findall("Science$", str)
+if (x):
+  print("Yes, the string ends with 'Science'")
+else:
+  print("No match")
+Ouput : Yes, the string ends with 'Science
+
+str = "Big Data"
+#Check if the string ends with 'Science':
+x = re.findall("Science$", str)
+if (x):
+  print("Yes, the string ends with 'Science'")
+else:
+  print("No match")
+Ouput : No match
+
+| Pattern | Valid? | Meaning                                         | Example Match     |
+| ------- | ------ | ----------------------------------------------- | ----------------- |
+| `fun$`  | ✅      | “fun” at end of string                          | `"Python is fun"` |
+| `$fun`  | ❌      | Invalid — `$` ends string, nothing can follow   | —                 |
+| `$fun$` | ❌      | Invalid — `$` can’t appear twice or before text | —                 |
+
+
+d. (*) matches for zero or more occurences of the pattern to the left of it :
+
+str = "easy easssy eay eaty eay eaay easssssss"
+#Check if the string contains "ea" followed by 0 or more "s" characters and ending with y
+x = re.findall("eas*y", str)
+print(x)
+Ouput : ['easy', 'easssy', 'eay']
+
+| **Pattern** | **Meaning**                           | **Example Input** | **Matches**              |
+| ----------- | ------------------------------------- | ----------------- | ------------------------ |
+| `a*`        | Zero or more `'a'`s                   | `"caaab"`         | `'aaa'`, `' '`           |
+| `ab*`       | `'a'` followed by zero or more `'b'`s | `"abb abbb aac"`  | `'abb'`, `'abbb'`, `'a'` |
+| `.*`        | Zero or more of **any** character     | `"Python!"`       | `'Python!'`              |
+
+
+4. 
+
+2. Text Representation
