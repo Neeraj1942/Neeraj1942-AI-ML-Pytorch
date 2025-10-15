@@ -235,6 +235,219 @@ Ouput : ['easy', 'easssy', 'eay']
 | `.*`        | Zero or more of **any** character     | `"Python!"`       | `'Python!'`              |
 
 
-4. 
+4. RegEx Sets -> A set is a bunch of characters inside a pair of square brackets [ ] with a special meaning.
+
+str = "Analytics Vidhya is one of the largest data science communities"
+#Check for the characters y, d, or h, in the above string
+x = re.findall("[ydh]", str)
+print(x)
+Ouput : ['y', 'd', 'h', 'y', 'h', 'd']
+
+str = "Analytics Vidhya is the one of the largest data science communities"
+#Check for the characters between a and g, in the above string
+x = re.findall("[a-g]", str)
+print(x)
+Ouput : ['a', 'c', 'd', 'a', 'e', 'e', 'f', 'e', 'a', 'g', 'e', 'd', 'a', 'a', 'c', 'e', 'c', 'e', 'c', 'e']
+
+str = "Analytics Vidhya is one of the largest data sciece communities"
+#Check if every word character has characters other than y, d, or h
+x = re.findall("[^ydh]", str)
+print(x)
+Ouput : ['A', 'n', 'a', 'l', 't', 'i', 'c', 's', ' ', 'V', 'i', 'a', ' ', 'i', 's', ' ', 'o', 'n', 'e', ' ', 'o', 'f', ' ', 't', 'e', ' ', 'l', 'a', 'r', 'g', 'e', 's', 't', ' ', 'a', 't', 'a', ' ', 's', 'c', 'i', 'e', 'c', 'e', ' ', 'c', 'o', 'm', 'm', 'u', 'n', 'i', 't', 'i', 'e', 's']
+
+str = "@AnalyticsVidhya"
+x = re.findall("[^@]", str)
+print(x)
+Ouput : ['A', 'n', 'a', 'l', 'y', 't', 'i', 'c', 's', 'V', 'i', 'd', 'h', 'y', 'a']
+
+| **Pattern** | **Meaning**                               | **Example Input** | **Output**                  |
+| ----------- | ----------------------------------------- | ----------------- | --------------------------- |
+| `[ydh]`     | Matches **y, d, or h**                    | `"Vidhya"`        | `['d', 'h', 'y', 'a']`      |
+| `[a-g]`     | Matches **any lowercase letter from a–g** | `"data"`          | `['a', 'd', 'a']`           |
+| `[^ydh]`    | Matches **any char except y, d, or h**    | `"Vidhya"`        | `['V', 'i', 'a']`           |
+| `[^@]`      | Matches **anything except @**             | `"@Python"`       | `['P','y','t','h','o','n']` |
+
+
+|  Symbol | Think of it as   | Meaning                                    |
+| :-----: | ---------------- | ------------------------------------------ |
+|  `[ ]`  | “In the box”     | Match any character *inside* the box       |
+|  `[^ ]` | “Not in the box” | Match any character *except* what’s inside |
+| `[a-z]` | “Range box”      | Match any character *from a to z*          |
+
 
 2. Text Representation
+We have to convert text to numerical features ->
+One hot encoding
+Word embeddings
+
+1. One Hot Ecoding ->
+a. Text Cleaning
+b. Tokenization
+c. Vocabulary Preperation
+d. One Hot Encoding Vectors
+
+i.e -> lower/upper case , puntuation marks, (after cleaning) -> tokenized -> extract the unique terms
+Note : Tokenization, is the most important technique when it comes to one hot encoding. Basically total number of words is important than the corpus
+
+code :
+# cleaning
+import re
+
+def clean(text):
+  #lower case
+  text=text.lower()
+  
+  #remove punctuations
+  text=re.sub('[^a-zA-Z]'," ",text)
+  
+  return text
+
+Ouput ->
+['Building some bots for Wikipedia.',
+ 'Wikipedia is flooded with information.',
+ 'There is an app for everthing.']
+
+1. first importing 
+2. converting all to lower case using , .lower()
+3. removing the puntuations, by using , ^ negates the special symbols. and replaces then with "" blank space, sub used to replace the (string1,string2, whole text),[ ] -> helps to capture a word
+Now the whole text is cleaned and converted as required.
+
+#call the clean function
+cleaned_text=[]
+
+for i in text:
+  cleaned_text.append(clean(i))
+
+this creates a loop for ach sentence in the text and return them in a list -> 'building some bots for wikipedia ', 'wikipedia is flooded with information ', 'there is an app for everthing ']
+
+#tokenize the text
+tokens=[]
+
+for i in cleaned_text:
+  tokens.append(i.split())
+
+print(tokens)
+
+this helps us to print each word as token.-> [['building', 'some', 'bots', 'for', 'wikipedia'], ['wikipedia', 'is', 'flooded', 'with', 'information'], ['there', 'is', 'an', 'app', 'for', 'everthing']]
+
+.split() -> 
+'building some bots for wikipedia'.split() -> ['building', 'some', 'bots', 'for', 'wikipedia']
+
+Now removing the duplicates from the corpus ->
+#construct vocabulary
+vocab=[]
+
+for i in tokens:
+  for j in i:
+    if j not in vocab:
+      vocab.append(j)
+
+#remove duplicate token
+vocab = list(set(vocab))
+
+# sort tokens 
+vocab.sort()
+
+print(vocab)
+
+vocab = list(set(vocab)) ->
+set(vocab) converts the list into a set, which automatically removes duplicates.
+list(...) converts it back to a list.
+
+vocab.sort() -> .sort() arranges the words in alphabetical order.
+
+Converting to one hot encoding ->
+#one hot vectors
+import numpy as np
+
+ohe=np.zeros([len(vocab),len(vocab)])
+
+for i in range(len(ohe)):
+  ohe[i][i]=1
+
+ohe = np.zeros([len(vocab), len(vocab)]) -> make a 0's matrix of the size len(vocab) * len(vocab)
+for i in range(len(ohe)):
+    ohe[i][i] = 1              -> add the 1's in the diagnol elements of the matrix
+output :
+array([[1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.]])
+
+a = "this is going to end in 2019 I can't wait for the coming year" 
+result = re.sub("\d{4}", "the coming year", a)
+result ->"this is going to end in the coming year I can't wait for the coming year"
+Explanation :
+\d = digit
+{4} = exactly 4 of them    (i.e 2019)
+You can change the number inside {}:
+\d{2} → exactly 2 digits
+\d{1,4} → between 1 and 4 digits
+\d+ → 1 or more digit
+
+Limitation -> one hot encoding does not understand the sentiment of the data, it just convert everything to unique forms.
+
+Word Embedding :
+Vector for a word ( i.e less size also)
+Captures the context around the word
+
+Similar words have less angle between them, telling us the context is close for the words
+Relationships are preserved
+
+pretrained word embedding ->
+1. word2vec
+2. GloVe
+
+Code ->
+importing the necessary modeule, genism, then loading he KeyedVectors into w2vec object.
+from gensim.models import KeyedVectors
+
+# path of the downloaded model
+filename = 'GoogleNews-vectors-negative300.bin'
+
+# load into gensim
+w2vec = KeyedVectors.load_word2vec_format(filename, binary=True)
+
+wordvec_array = np.zeros((len(vocab), 300)) -> creates a shape of (len)vocab),300
+for i, j in enumerate(vocab):
+    wordvec_array[i, :] = w2vec.wv.word_vec(j) -> 
+enumerate(vocab) gives index i and word j.
+w2vec.wv.word_vec(j) (deprecated in gensim ≥4.0) retrieves the 300-dimensional vector for the word j.
+wordvec_array[i, :] = ... puts that vector in row i of the array.
+
+The above is the older version ->
+
+The newer model using genism is ->
+from gensim.models import KeyedVectors
+
+# path of the downloaded model
+filename = 'GoogleNews-vectors-negative300.bin'
+
+# load into gensim
+w2vec = KeyedVectors.load_word2vec_format(filename, binary=True)
+
+to check for the word embedding with dimensions (,300)->
+# empty array of shape (no. of tokens X 300) to store word2vec features
+wordvec_array = np.zeros((len(vocab), 300))
+
+for i,j in enumerate(vocab):
+  wordvec_array[i,:] = w2vec[j]
+
+for i,j in enumerate(vocab):
+  wordvec_array[i,:] = w2vec[j]
+Working ->
+vocab = ["king", "queen", "apple"] :
+wordvec_array[0, :] → embedding vector for "king"
+wordvec_array[1, :] → embedding vector for "queen"
+wordvec_array[2, :] → embedding vector for "apple"
+
+
