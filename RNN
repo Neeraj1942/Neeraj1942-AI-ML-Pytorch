@@ -1,0 +1,27 @@
+RNN ->
+Sequential Modelling ->
+Can work with time series data , audio data, video frames, text etc.
+Sequential prediction is import to predict the next steos in the model
+So remeber the past data , we use a added weight to hidden layers and connect these hidde layers.
+Task : classify sentiment analysis of the text as positive or negative -> many to one model
+
+Forward Propogation ->
+Many to one example : 
+H1 = g(W * H0 + U * X1)
+H2 = g(W * H1 + U * X2)
+H3 = g(W * H2 + U * X3)
+Y = k(V * H3)
+U,V,W -> weights, can be considered as gradients
+| Symbol  | Meaning                                                           |
+| ------- | ----------------------------------------------------------------- |
+| ( x_t ) | Input vector at time step ( t ) (e.g., word embedding for a word) |
+| ( h_t ) | Hidden state (like memory) at time step ( t )                     |
+| ( W )   | Hidden-to-hidden weights (same at every step)                     |
+| ( U )   | Input-to-hidden weights                                           |
+| ( V )   | Hidden-to-output weights                                          |
+| ( g )   | Activation function (usually tanh or ReLU) non linear             |
+| ( k )   | Activation function (usually sigmoid,linear, softmax ) linear     |                                            
+
+Backward Propogation ->
+dl/dv = dl/dy * dy/dv 
+                                             
