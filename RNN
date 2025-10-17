@@ -24,4 +24,18 @@ U,V,W -> weights, can be considered as gradients
 
 Backward Propogation ->
 dl/dv = dl/dy * dy/dv 
-                                             
+now if the loss function -> L = 1/2(y-y^)^2
+dl/dy = (y-y^) * dy/dv ; if considered a linear activation function -> k =1 
+then, y = VH3 -> dy/dv = h3 ; using this above equation 
+dl/dv = (y-y^) * H3
+
+dl/dw = dl/dy * dy/dH * dH/dW
+
+dl/dU = dl/dy * dy/dH * dH/dU
+
+Weight update equation : 
+v = v -alpha * dl/dv
+w = w -alpha * dl/dw
+u = u -alpha * dl/du
+
+
