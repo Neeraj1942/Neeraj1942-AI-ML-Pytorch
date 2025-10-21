@@ -5,6 +5,23 @@ Sequential prediction is import to predict the next steos in the model
 So remeber the past data , we use a added weight to hidden layers and connect these hidde layers.
 Task : classify sentiment analysis of the text as positive or negative -> many to one model
 
+
+        timestep 1                timestep 2                timestep 3
+    ─────────────────        ─────────────────        ─────────────────
+          x1                        x2                        x3
+          │                         │                         │
+          │  U                      │  U                      │  U
+          ▼                         ▼                         ▼
+        ┌─────┐       W           ┌─────┐        W          ┌─────┐
+H0 ---> │ H1  │ --------------->  │ H2  │  --------------->  │ H3  │
+(initial│     │                   │     │                    │     │
+ state) └─────┘                   └─────┘                    └─────┘
+                                                              │
+                                                              │  V
+                                                              ▼
+                                                            ŷ (output)
+
+
 Forward Propogation ->
 Many to one example : 
 H1 = g(W * H0 + U * X1)
