@@ -1,1 +1,180 @@
+On stack exchange dataset -> http://stackexchange.com/
+Quality -> the number of uploads 
+Dividing each question into ->
+a. title
+b. question
+c. tags
 
+Business Problem: Untagged questions or questions with irrelevant tags lead to a large number of unanswered questions. 
+The experts find it difficult to discover the right questions, and the users who post questions don't get timely responses. 
+This situation leads to a drop in the level of user-engagement on the platform.
+
+Input           : Text data
+Target Variable : Multiple Tags
+(Note: the major difference is in binary and multiclass classification we have one input to one target variable, 
+but in this case - we can have one question(input) taggged with multiple tags (target variable).
+
+Code ->
+
+pd.read_csv('Questions.csv', encoding='latin-1')
+we use this to -> the encoding='latin-1' is used to avoid errors caused by special characters in the dataset.
+
+for the Tags.csv we dont use because, it has no errros, we can use latin1 here without any issues
+the default is default UTF-8 -> 
+| Feature                                   | UTF-8           | Latin-1 (`latin-1`)     |
+| ----------------------------------------- | --------------- | ----------------------- |
+| Default in Python/pandas                  | ✅ Yes           | ❌ No                    |
+| Supports emojis                           | ✅ Yes           | ❌ No                    |
+| Supports all languages                    | ✅ Yes           | ❌ Only Western European |
+| File size                                 | Smaller usually | Larger                  |
+| Crashes on wrong characters               | ❌ Yes           | ✅ Never crashes         |
+| Good for messy Kaggle/StackOverflow text? | Sometimes       | ✅ Yes                   |
+| Safe for simple text                      | ✅ Yes           | ✅ Yes                   |
+
+def cleaner(text):
+
+  # take off html tags
+  text = BeautifulSoup(text).get_text() -> beautifulSoup helps wipe out all the html tags 
+  
+  # fetch alphabetic characters
+  text = re.sub("[^a-zA-Z]", " ", text) -> This line removes numbers, punctuation, and special characters replaces them with space 
+
+  # convert text to lower case
+  text = text.lower() -> changes all the aplhabets to lower case
+
+  # split text into tokens to remove whitespaces
+  tokens = text.split() -> splits the sentences into tokens , like -> ['Machine', 'learning', 'is', 'fun']
+
+  return " ".join(tokens) -> join isused to set it back into sentences -> machine learning is fun
+
+# call preprocessing function
+questions_df['cleaned_text'] = questions_df['Body'].apply(cleaner) -> to call the function and apply it to the preprocessing
+now the questions_df['Body'] is same but the cleaned version is named questions_df['cleaned_text']
+
+
+2. Merging the tags ->
+# count of unique tags
+len(tags_df['Tag'].unique())
+
+tags_df['Tag'].value_counts() -> gives you a frequency count of each tag in your Tags.csv dataset
+
+# remove "-" from the tags
+tags_df['Tag']= tags_df['Tag'].apply(lambda x:re.sub("-"," ",x)) 
+-> replaces all the '-' symbols with spaces to stop error , the lambda function helps to apply this to every row in the dataset
+
+# group tags Id wise
+tags_df = tags_df.groupby('Id').apply(lambda x:x['Tag'].values).reset_index(name='tags')
+tags_df.head()
+-> Groups the dataframe by Id and collects all Tag values for each Id into a single array in a new column called tags.
+
+# merge tags and questions
+df = pd.merge(questions_df,tags_df,how='inner',on='Id') 
+-> Merges questions_df and tags_df on the Id column, keeping only rows with matching Ids and adding the grouped tags to each question.
+
+df = df[['Id','Body','cleaned_text','tags']]
+df.head() -> Selects and keeps only the columns Id, Body, cleaned_text, and tags in the dataframe df.
+
+3. Dateset preparation ->
+freq = {'data science': 2, 'ai': 3, 'ml': 1}
+print(freq.keys())
+output : dict_keys(['data science', 'ai', 'ml'])
+
+in dictionaries -> items = keys : value
+
+# sort the dictionary in descending order
+freq = dict(sorted(freq.items(), key=lambda x:x[1],reverse=True)) 
+-> Sorts the dictionary freq by its values in descending order and returns a new dictionary with keys ordered from highest to lowest value.
+here ( x : x[1] gives the vlaues to the dictionary)
+
+# Top 10 most frequent tags
+common_tags = list(freq.keys())[:10]
+common_tags -> gives the top 10 frequencies in the list
+
+x=[]
+y=[]
+for i in range(len(df['tags'])):
+  
+  temp=[]
+  for j in df['tags'][i]:
+    if j in common_tags:
+      temp.append(j)
+
+  if(len(temp)>1):
+    x.append(df['cleaned_text'][i])
+    y.append(temp)
+-> this codes checks if the tags are in the common_tags, then adds it to the y
+-> then we check the assign all the questions(cleaned_text) in the x with their tags (out of 10)
+Note :
+x.append(df['cleaned_text'][i]) → a list of cleaned_text
+y.append(temp) → a list of tags
+
+Importing ->
+from sklearn.preprocessing import MultiLabelBinarizer
+mlb = MultiLabelBinarizer()
+y = mlb.fit_transform(y)
+y.shape
+-> this converts the y into a converts each sample (inner list) into a binary vector (0 or 1 for presence/absence of tags).
+
+y[0,:] -> array([0, 0, 0, 0, 0, 0, 1, 0, 0, 1])
+
+mlb.classes_ -> array(['classification', 'distributions', 'hypothesis testing',
+       'logistic', 'machine learning', 'probability', 'r', 'regression',
+       'self study', 'time series'], dtype=object)
+
+mlb.classes_ ->
+The trailing underscore _ is part of scikit-learn’s naming convention.
+Attributes with _ at the end are set during fitting.
+mlb.classes_ is an attribute, not a method.
+
+from sklearn.model_selection import train_test_split
+x_tr,x_val,y_tr,y_val=train_test_split(x, y, test_size=0.2, random_state=0,shuffle=True)
+
+
+4. Text Representation ->
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences 
+
+#prepare a tokenizer
+x_tokenizer = Tokenizer() 
+x_tokenizer.fit_on_texts(x_tr)
+
+explanation ->
+from keras.preprocessing.text import Tokenizer
+x_tokenizer = Tokenizer()
+-> Tokenizer is a text preprocessing utility.
+Its job is to convert text into numbers that neural networks can work with.
+Essentially, it builds a vocabulary of all words in your text corpus and assigns a unique integer to each word.
+
+x_tokenizer.word_index ->
+sample -> {'the': 1,
+ 'i': 2,
+ 'to': 3,
+ 'a': 4,
+ 'of': 5,
+ 'instances': 1000,
+ ...}
+
+x_tokenizer.fit_on_texts(x_tr) -> .fit_on_texts() learns the vocabulary from your text data x_tr.
+
+len(x_tokenizer.word_index) -> 25312 
+
+thresh = 3
+
+cnt=0
+for key,value in x_tokenizer.word_counts.items():
+  if value>=thresh:
+    cnt=cnt+1
+print(cnt) -> 12574 
+Explanation : Counts how many words in the tokenizer’s vocabulary appear 3 or more times in the training texts.
+
+# prepare the tokenizer again
+x_tokenizer = Tokenizer(num_words=cnt, oov_token='unk')
+
+# prepare vocabulary
+x_tokenizer.fit_on_texts(x_tr)
+
+Tokenizer(num_words=cnt, oov_token='unk') ->
+num_words -> The maximum number of words to keep in the tokenizer’s vocabulary.
+oov_token -> Out-of-vocabulary” token — a special token for words not in the vocabulary.
+here 'unk' is a new token assigned to the the dataset, with value 1, (unk :1).
+if our num_words = 10 , then only the values with the value 9 are used and the rest are replaced with 'unk'.
