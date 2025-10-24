@@ -178,3 +178,58 @@ num_words -> The maximum number of words to keep in the tokenizer’s vocabulary
 oov_token -> Out-of-vocabulary” token — a special token for words not in the vocabulary.
 here 'unk' is a new token assigned to the the dataset, with value 1, (unk :1).
 if our num_words = 10 , then only the values with the value 9 are used and the rest are replaced with 'unk'.
+
+x_tokenizer.fit_on_texts(x_tr) ->
+fit_on_texts -> 
+Goes through all sentences in x_tr.
+Counts how often each word appears.
+Sorts words by frequency.
+Creates a word → index mapping (word_index).
+
+example output -> {'ai': 1, 'i': 2, 'love': 3, 'loves': 4, 'me': 5}
+
+texts_to_sequences -> another method to convert the texts into numerical data in keras tokenizer
+code -> x_tr_seq = x_tokenizer.texts_to_sequences(x_tr)
+example output -> {'ai': 1, 'i': 2, 'love': 3, 'loves': 4, 'me': 5}
+the arrays would be -> 
+| Sentence      | Tokenized Output |
+| ------------- | ---------------- |
+| "I love AI"   | `[2, 3, 1]`      |
+| "AI loves me" | `[1, 4, 5]`      |
+
+Padding -> Padding works on number sequences, not words. 
+So we must first convert text → tokens → number sequences, then pad.
+
+| Step                      | Why it's needed         | Example                    |
+| ------------------------- | ----------------------- | -------------------------- |
+| 1. Clean Text             | remove noise            | "I love AI!" → "i love ai" |
+| 2. Tokenize Text          | split into words        | ["i", "love", "ai"]        |
+| 3. Convert to Sequences ✅ | convert words → numbers | [2, 5, 1]                  |
+| 4. Pad Sequences ✅        | make equal length       | [2, 5, 1, 0, 0]            |
+
+function used is -> pad_sequences
+usage : x_tr_seq = pad_sequences(x_tr_seq,  padding='post', maxlen=max_len)
+maxlen is already defined
+padding = 'post' means adding the 0's at the end
+x_tr_seq : converted text data into numerical 
+Example - > [[2, 3, 4], [4, 5, 6, 7]]
+  becomes -> 
+[[2 3 4 0 0 0]
+ [4 5 6 7 0 0]]
+
+Note: as we have used a new token (oov_token ='unk') we have to add this to our vocabulary size
+x_voc_size = x_tokenizer.num_words + 1
+
+first input question (x) is -> x_tr_seq[0] (we get 100 number; dtype=int32)
+
+
+Model Building :
+
+
+
+
+
+
+
+
+
