@@ -217,19 +217,177 @@ Example - > [[2, 3, 4], [4, 5, 6, 7]]
 [[2 3 4 0 0 0]
  [4 5 6 7 0 0]]
 
+Note: If we have more than the max_length in the converted data, then the last after 100 are removed or truncated !
+
 Note: as we have used a new token (oov_token ='unk') we have to add this to our vocabulary size
-x_voc_size = x_tokenizer.num_words + 1
+x_voc_size = x_tokenizer.num_words + 1 (done to add the padding token : '0')
 
 first input question (x) is -> x_tr_seq[0] (we get 100 number; dtype=int32)
 
 
 Model Building :
+Embedding() -> categorical integers (like word indices) into dense vectors of fixed size
+embedding_layer = Embedding(
+    input_dim=vocab_size,     # total number of unique words + 1
+    output_dim=embedding_dim, # size of the embedding vector
+    input_length=max_len      # length of input sequences
+)
+
+Our Code : model.add(Embedding(x_voc_size, 50, input_shape=(max_len,), mask_zero=True))
+Explanation ->
+| Parameter / Part         | Meaning                                                               |
+| ------------------------ | --------------------------------------------------------------------- |
+| `Embedding`              | Layer that converts word indices into dense vectors (word embeddings) |
+| `x_voc_size`             | Vocabulary size (number of unique words + 1 for padding)              |
+| `50`                     | Dimension of the embedding vector for each word                       |
+| `input_shape=(max_len,)` | Shape of input sequences (each sequence has `max_len` tokens)         |
+| `mask_zero=True`         | Tells the layer to ignore padding (`0`) during training               |
 
 
+SimpleRNN layer ->
+model.add(SimpleRNN(128,activation='relu'))
+| Feature    | Explanation                                                                                              |
+| ---------- | -------------------------------------------------------------------------------------------------------- |
+| Recurrent  | Processes data **step by step**, maintaining a hidden state that carries information from previous steps |
+| Input      | Expects **3D tensor**: `(batch_size, timesteps, features)`                                               |
+| Output     | Can return **the last output** or **the full sequence**                                                  |
+| Activation | Typically `tanh` by default                                                                              |
+| Limitation | Cannot capture **long-term dependencies** well (vanishing gradient problem)                              |
+
+| Parameter / Part    | Meaning                                                                                                                                            |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SimpleRNN`         | A type of recurrent neural network (RNN) layer that processes sequences step by step, maintaining a hidden “memory” of previous steps.             |
+| `128`               | Number of **units** (or neurons) in the RNN layer. Each unit has its own hidden state, so the output at each timestep is a 128-dimensional vector. |
+| `activation='relu'` | Activation function applied to the RNN units. `'relu'` introduces non-linearity, helping the model learn complex patterns.                         |
+
+for the code the summary paramters are caculated like this - 
+lengh is 12575 
+| Layer              | Output Shape      | Parameters | Calculation                                                           |
+| ------------------ | ----------------- | ---------- | --------------------------------------------------------------------- |
+| **Embedding**      | `(None, 100, 50)` | 628,750    | `x_voc_size * embedding_dim = 12,575 * 50 = 628,750`                  |
+| **SimpleRNN(128)** | `(None, 128)`     | 22,912     | `(input_dim + units) * units + units = (50 + 128)*128 + 128 = 22,912` |
+| **Dense(128)**     | `(None, 128)`     | 16,512     | `input_dim * units + units = 128*128 + 128 = 16,512`                  |
+| **Dense(10)**      | `(None, 10)`      | 1,290      | `input_dim * units + units = 128*10 + 10 = 1,290`                     |
+| **Total**          | —                 | 669,464    | Sum of all parameters                                                 |
+
+in simple rnn -> (input_dim + units) * units + units :
+input_dim * units + units * units + units -> 
+units * units because : The current input x_t → gives input_dim * units parameters
+The previous hidden state h_{t-1} → each of the 128 neurons in h_t receives input from all 128 neurons in h_{t-1}
+
+then we use optimzer and loss
+then we create a ModelCheckpoint() 
+mc = ModelCheckpoint("weights.best.hdf5", monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+
+Then train the model :
+model.fit(x_tr_seq, y_tr, batch_size=128, epochs=10, verbose=1, validation_data=(x_val_seq, y_val), callbacks=[mc])
+
+ModelPrediction ->
+# load weights into new model
+model.load_weights("weights.best.hdf5")
+
+#predict probabilities
+pred_prob = model.predict(x_val_seq)
+
+Why do we again use model.load_weights() ->
+For example:
+Epoch 1 → validation loss = 0.5
+Epoch 5 → validation loss = 0.3 (best)
+Epoch 10 → validation loss = 0.35
+If you just use the model after training, it will use the weights from epoch 10, 
+which are slightly worse than the best ones.
+
+So when we call model.load_weights() again after the 
+training -> the weights stored at epoch 5 are used
+
+now we predict the probability -> pred_prob[0] : we get ouput like ->
+array([0.05661559, 0.01500756, 0.0809429 , 0.34682304, 0.14759117,
+       0.00561154, 0.4962414 , 0.627706  , 0.0462845 , 0.24911207],
+      dtype=float32)
+
+then we create a threshold to check each one, to find the best one out of them all ->
+#define candidate threshold values
+threshold  = np.arange(0,0.5,0.01)
+threshold
+
+then we use a method called classifiy(pred_prob,thresh) ->
+to calculate each of the 10 probs to 0's or 1's
+
+y_true = np.array(y_val).ravel() -> to convert this into numpy array to flattened numpy 1-d array :
+example ->  y_val = [[0,1,0,1], [1,0,0,1], [0,0,1,0]]
+after .ravel() : stilla numpy array but 1-d
+array([[0, 1, 0, 1],
+       [1, 0, 0, 1],
+       [0, 0, 1, 0]])
 
 
+then we use that use the classify() function to check for all the threshold.
+then using .ravel() we convert the 10 probs into 1-d numpy array and store the ->
+y_val flattened to y_true 
+y_pred_seq flattened to y_pred 
+
+then we use metrics to calculate the f1 score for ->
+ score.append(metrics.f1_score(y_true,y_pred)) , and store it in score[]
+
+then find theo ne with the threshold with the max score ->
+opt = threshold[score.index(max(score))]
+
+y_pred_seq = classify(pred_prob, opt)  # 2D list
+y_pred = np.array(y_pred_seq).ravel()  # flatten to 1D array
+
+then we flatten the new one with using the best threshold (opt)
+
+print the classification_report ->
+print(metrics.classification_report(y_true,y_pred))
+
+then we convert the binary arays back into the initial label formats 
+inverse_transform converts the binary array back into the original label format
+
+y_pred = mlb.inverse_transform(np.array(y_pred_seq))
+y_true = mlb.inverse_transform(np.array(y_val))
+
+df = pd.DataFrame({'comment':x_val,'actual':y_true,'predictions':y_pred})
+-> this helps to create a oandas dataframe with the new acjived values
 
 
+Inference ->
+In machine learning and deep learning, inference simply means using a 
+trained model to make predictions on new data
+
+def predict_tag(comment):  
+  text=[]
+
+  #preprocess  
+  text = [cleaner(comment)]
+
+  #convert to integer sequences
+  seq = x_tokenizer.texts_to_sequences(text)
+
+  #pad the sequence
+  pad_seq = pad_sequences(seq,  padding='post', maxlen=max_len)
+
+  #make predictions
+  pred_prob = model.predict(pad_seq)
+  classes = classify(pred_prob,opt)[0]
+  
+  classes = np.array([classes])
+  classes = mlb.inverse_transform(classes)  
+  return classes
 
 
+Example ->
+Input: "How do I merge two dataframes in pandas?"
 
+Clean: "how do i merge two dataframes in pandas"
+
+Tokenize → [12, 5, 7, 120, 78, 14, 202]
+
+Pad → [12, 5, 7, 120, 78, 14, 202, 0, ..., 0]
+
+Predict → [0.12, 0.01, 0.03, 0.87, 0.02, 0.05, 0.60, ...]
+
+Apply threshold → [0, 0, 0, 1, 0, 0, 1, ...]
+
+Inverse transform → ('python', 'pandas')
+
+Output: predicted tags ✅
