@@ -1,1 +1,42 @@
+LSTM (Long Short-Term Memory)->
+| Gate            | Purpose                                                          |
+| --------------- | ---------------------------------------------------------------- |
+| **Forget Gate** | Decides what information from the previous state to **discard**. |
+| **Input Gate**  | Decides what new information to **store** in the cell state.     |
+| **Output Gate** | Decides what information to **output** from the current cell.    |
 
+| Component / Gate            | Formula                                              | Activation | Purpose                                                                   |
+| --------------------------- | ---------------------------------------------------- | ---------- | ------------------------------------------------------------------------- |
+| **Forget Gate (f_t)**       | ( f_t = σ(W_f x_t + U_f h_{t-1} + b_f) )        | Sigmoid    | Decide which information to **forget** from previous cell state (C_{t-1}) |
+| **Input Gate (i_t)**        | ( i_t = σ(W_i x_t + U_i h_{t-1} + b_i) )        | Sigmoid    | Decide which new information to **store** in cell state                   |
+| **Candidate Memory (~C_t)** | ( \tilde{C}*t = \tanh(W_c x_t + U_c h*{t-1} + b_c) ) | Tanh       | Generate **candidate values** to add to cell state                        |
+| **Cell State Update (C_t)** | ( C_t = f_t * C_{t-1} + i_t * \tilde{C}_t )          | Linear     | Update **cell memory** by combining old and new info                      |
+| **Output Gate (o_t)**       | ( o_t = σ(W_o x_t + U_o h_{t-1} + b_o) )        | Sigmoid    | Decide which information from cell state to **output**                    |
+| **Hidden State (h_t)**      | ( h_t = o_t * \tanh(C_t) )                           | Tanh       | Final **output** of LSTM at current time step                             |
+
+
+| Terminology            | Meaning                                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **x_t**                | Input vector at current time step **t**. For NLP, this could be word embeddings; for time series, the current value.      |
+| **h_{t-1}**            | Hidden state (output) from the **previous time step**. Carries short-term information to the current step.                |
+| **C_{t-1}**            | Cell state from the previous time step. Stores **long-term memory**.                                                      |
+| **f_t**                | Forget gate output (values between 0 and 1). Determines **how much of C_{t-1} to keep or discard**.                       |
+| **i_t**                | Input gate output (values between 0 and 1). Determines **how much of the new candidate memory (~C_t) to write into C_t**. |
+| **~C_t**               | Candidate memory values (between -1 and 1) that are proposed to **update the cell state**.                                |
+| **C_t**                | Updated cell state. Combines forgotten old memory and added new memory. Represents **long-term memory at time t**.        |
+| **o_t**                | Output gate (values between 0 and 1). Controls **how much of the cell state to expose as hidden state**.                  |
+| **h_t**                | Hidden state at time t. This is the **output of the LSTM cell** and is passed to the next layer or time step.             |
+| **W_f, W_i, W_c, W_o** | Weight matrices applied to the **current input x_t** for each gate. Learned during training.                              |
+| **U_f, U_i, U_c, U_o** | Recurrent weight matrices applied to the **previous hidden state h_{t-1}** for each gate.                                 |
+| **b_f, b_i, b_c, b_o** | Bias vectors for each gate. Help shift the activation function and improve learning.                                      |
+| **σ (sigmoid)**        | Activation function mapping any value to **0–1**. Used for gates to represent a proportion (keep, add, output).           |
+| **tanh**               | Hyperbolic tangent activation function mapping any value to **-1 to 1**. Used for candidate memory and scaling output.    |                                                        |
+
+Important obervation in lstm ->
+| Question                                                              | Answer                                                                                                                           |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| How many different types of gates and weight matrices does LSTM have? | LSTM has **3 gates** (forget, input, output) and **8 weight matrices** ((W_f, W_i, W_o, W_c, U_f, U_i, U_o, U_c)).               |
+| Which component acts like a memory in LSTM?                           | The **cell state (C_t)** acts as **long-term memory**.                                                                           |
+| Which activation function is common in all the gates in LSTM?         | **Sigmoid** is used in all three gates.                                                                                          |
+| Can we replace sigmoid with tanh in all the gates in LSTM?            | **No.** Sigmoid outputs 0–1, controlling information flow, while tanh outputs -1 to 1. Tanh cannot replace sigmoid in the gates. |
+| The cell state is independent of which of the states                  | Both input and forget gate |
