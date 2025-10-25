@@ -102,6 +102,81 @@ Only 2 gates in a gru :
 | ( z_t = 0 ) | Keep old memory, ignore new input    |
 | ( z_t = 1 ) | Replace old memory completely        |
 
+Note : 
+| Model    | Gates                                                         | Recurrent Connections (U)                             | Description                                            |
+| -------- | ------------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------ |
+| **GRU**  | 2 gates (Reset (r_t), Update (z_t))                           | **3 recurrent weight matrices**: (U_r, U_z, U_h)      | One recurrent connection per gate + candidate state    |
+| **LSTM** | 3 gates (Forget (f_t), Input (i_t), Output (o_t)) + candidate | **4 recurrent weight matrices**: (U_f, U_i, U_o, U_c) | More recurrent feedback because it tracks a cell state |
+
+Using LSTM for autotagging issue ->
+
+Everything remains the same as the RNN systems, but in the while defining the model we do ->
+#sequential model
+model = Sequential()
+
+#embedding layer
+model.add(Embedding(x_voc_size, 50, trainable = True, input_shape=(max_len,),mask_zero=True))
+
+#lstm 
+model.add(LSTM(128))   -> only this is the difference
+
+#dense layer
+model.add(Dense(128,activation='relu')) 
+
+#output layer
+model.add(Dense(10,activation='sigmoid'))
+
+| Layer      | Parameter Formula                     | Param Count |
+| ---------- | ------------------------------------- | ----------- |
+| Embedding  | vocab_size × embed_dim                | 628,750     |
+| LSTM       | 4 × ((input + units) × units + units) | 91,648      |
+| Dense(128) | input × units + bias                  | 16,512      |
+| Dense(10)  | input × units + bias                  | 1,290       |
+
+LSTM gate :
+4 × ((input + units) × units + units) -> 4 gates so - and it learns from the previous data
+4 * (input * units + units * units + units) 
+Explanation of the 4 gates ->
+| Gate Name       | Symbol          | Purpose                                        |
+| --------------- | --------------- | ---------------------------------------------- |
+| Forget Gate     | ( f_t )         | Decides what part of previous memory to forget |
+| Input Gate      | ( i_t )         | Decides what new information to store          |
+| Candidate State | ( \tilde{c}_t ) | Creates new candidate memory                   |
+| Output Gate     | ( o_t )         | Decides what part of memory to output          |
+
+
+How to improve the hyperparameters in the LSTM model ->
+1. You can add more LSTM layers
+2. You can pass pre-trained word embeddings
+3. You can play with different optimizers
+4. Try different input sequence length
+
+
+For GRU model ->
+model = Sequential()
+model.add(Embedding(x_voc_size, 50, trainable=True, input_shape=(max_len,), mask_zero=True))
+model.add(GRU(128))   # <-- Changed to GRU
+model.add(Dense(128, activation='relu'))
+model.add(Dense(10, activation='sigmoid'))
+
+
+| Layer      | Parameter Formula                         | Param Count |
+| ---------- | ----------------------------------------- | ----------- |
+| Embedding  | vocab_size × embed_dim                    | 628,750     |
+| **GRU**    | 3 × ((input_dim + units) × units + units) | 68,736      |
+| Dense(128) | input_dim × units + bias                  | 16,512      |
+| Dense(10)  | input_dim × units + bias                  | 1,290       |
+
+Here we have 3 states for the gru -> 3 × ((input_dim + units) × units + units)
+: 3 * (input_dim * units + units * units + units)
+Note : the 3 gates are -> 
+| Gate Name       | Symbol          | Purpose                                     |
+| --------------- | --------------- | ------------------------------------------- |
+| Update Gate     | ( z_t )         | Decides how much past information to keep   |
+| Reset Gate      | ( r_t )         | Decides how much past information to forget |
+| Candidate State | ( \tilde{h}_t ) | New memory content to be added              |
+
+
 
 
 
