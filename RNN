@@ -85,3 +85,26 @@ w = w -alpha * dl/dw
 u = u -alpha * dl/du
 
 
+Short Coming of RNN ->
+Vanishing Gradients -> ( values are almost zero) -> RNN stops loading
+dl/dw = dl/dy * dy/dH * dH/dW
+dl/dU = dl/dy * dy/dH * dH/dU
+-> if they have very less value then we they might be considered zero ; inturns means the model did not learn anything
+
+Exploding gradients -> (values are almost or greater than 1) -> RNN learns wrong predictions
+dl/dw = dl/dy * dy/dH * dH/dW
+dl/dU = dl/dy * dy/dH * dH/dU
+-> if the value is more or equal to 1, then the gradients will get updated will be quite large, the model might learn significant weights.
+
+Preventing these are : 
+Short Coming of RNN -> Gradient Clipping
+Exploding gradients -> LSTM or GRU
+
+
+
+
+
+
+
+
+
