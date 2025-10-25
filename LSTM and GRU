@@ -32,6 +32,15 @@ LSTM (Long Short-Term Memory)->
 | **σ (sigmoid)**        | Activation function mapping any value to **0–1**. Used for gates to represent a proportion (keep, add, output).           |
 | **tanh**               | Hyperbolic tangent activation function mapping any value to **-1 to 1**. Used for candidate memory and scaling output.    |                                                        |
 
+| Gate Value  | Gate Name   | Effect                                          |
+| ----------- | ----------- | ----------------------------------------------- |
+| ( f_t = 0 ) | Forget Gate | Forget **all previous memory**                  |
+| ( f_t = 1 ) | Forget Gate | Keep **all previous memory**                    |
+| ( i_t = 0 ) | Input Gate  | **Block new information**, no update            |
+| ( i_t = 1 ) | Input Gate  | **Allow full new information** to update memory |
+| ( o_t = 0 ) | Output Gate | **Hide memory**, no output from LSTM            |
+| ( o_t = 1 ) | Output Gate | **Show full memory** as output                  |
+
 Important obervation in lstm ->
 | Question                                                              | Answer                                                                                                                           |
 | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
@@ -47,4 +56,52 @@ H(t-1) , H(t) are the -> Short term memory of the LSTM
 
 the current cell state is a equation with the both the previous current state cell and the new information.
 cell state acts as a memory for the LSTM
+
+
+GRU (Gates Recurrent Unit) ->
+No seperate cell state C(t)
+
+Only 2 gates in a gru :
+1. Reset Gate (short-term memory)
+2. Update Gate (long-term memory)
+
+| Gate                 | Purpose                                         |
+| -------------------- | ----------------------------------------------- |
+| **Update Gate (zₜ)** | Decides **how much past information to keep**   |
+| **Reset Gate (rₜ)**  | Decides **how much past information to forget** |
+
+| Step                          | Formula                                                          | Meaning                           |
+| ----------------------------- | ---------------------------------------------------------------- | --------------------------------- |
+| **1. Update Gate**            | ( z_t = \sigma(W_z x_t + U_z h_{t-1} + b_z) )                    | Controls memory retention         |
+| **2. Reset Gate**             | ( r_t = \sigma(W_r x_t + U_r h_{t-1} + b_r) )                    | Controls forgetting of old memory |
+| **3. Candidate Hidden State** | ( \tilde{h}*t = \tanh(W_h x_t + U_h (r_t \odot h*{t-1}) + b_h) ) | Creates new memory                |
+| **4. Final Hidden State**     | ( h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t )        | Final output memory               |
+
+| Symbol            | Meaning                          |
+| ----------------- | -------------------------------- |
+| ( x_t )           | Input at time t                  |
+| ( h_{t-1} )       | Previous hidden state            |
+| ( \sigma )        | Sigmoid activation               |
+| ( W_z, W_r, W_h ) | Weight matrices for input        |
+| ( U_z, U_r, U_h ) | Weight matrices for hidden state |
+| ( b_z, b_r, b_h ) | Bias terms                       |
+| ( \odot )         | Element-wise multiplication      |
+
+| Feature         | GRU     | LSTM                   |
+| --------------- | ------- | ---------------------- |
+| Number of gates | 2       | 3                      |
+| Parameters      | Fewer   | More                   |
+| Speed           | Faster  | Slower                 |
+| Accuracy        | Similar | Good for complex tasks |
+| Architecture    | Simple  | Slightly complex       |
+
+| Gate Value  | Effect                               |
+| ----------- | ------------------------------------ |
+| ( r_t = 0 ) | Reset memory → ignore past (h_{t-1}) |
+| ( r_t = 1 ) | Use full past memory in update       |
+| ( z_t = 0 ) | Keep old memory, ignore new input    |
+| ( z_t = 1 ) | Replace old memory completely        |
+
+
+
 
