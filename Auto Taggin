@@ -391,3 +391,16 @@ Apply threshold → [0, 0, 0, 1, 0, 0, 1, ...]
 Inverse transform → ('python', 'pandas')
 
 Output: predicted tags ✅
+
+Incase you want to use all the 1+ questions and predict the tags we can replace ->
+
+
+  pad ->  pad_seq = pad_sequences(seq, padding='post', maxlen=max_len)
+
+  predict -> pred_prob = model.predict(pad_seq)
+
+  apply threshold -> classes_array = np.array(classify(pred_prob, opt))
+
+  inverse transform ->  predicted_tags = mlb.inverse_transform(classes_array)
+
+
