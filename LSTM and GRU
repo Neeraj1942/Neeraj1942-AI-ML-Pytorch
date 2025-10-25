@@ -40,3 +40,11 @@ Important obervation in lstm ->
 | Which activation function is common in all the gates in LSTM?         | **Sigmoid** is used in all three gates.                                                                                          |
 | Can we replace sigmoid with tanh in all the gates in LSTM?            | **No.** Sigmoid outputs 0–1, controlling information flow, while tanh outputs -1 to 1. Tanh cannot replace sigmoid in the gates. |
 | The cell state is independent of which of the states                  | Both input and forget gate |
+
+Breaking the concept down ->
+C(t-1) , C(t) are the -> Long term memory of the LSTM
+H(t-1) , H(t) are the -> Short term memory of the LSTM
+
+the current cell state is a equation with the both the previous current state cell and the new information.
+cell state acts as a memory for the LSTM
+
