@@ -179,4 +179,12 @@ Note : the 3 gates are ->
 
 
 
+HOW TO USE CNN FOR TEXT DATA ->
+1. We will first create a sentence matrix
+2. then we will use filters with the same width which restricts the matrix to move sideways 
+3. we then use stride =1 to move it horizontally by 1 step
+3. then we convert these into feature maps , then
+here we combine the information learnt at each timestamp using ->
+4. use pooling to get the best case from all the filters 
+5. the max pooled vectors helps in predictions
 
