@@ -5,3 +5,81 @@ The time series data can be ->
 Stationary
 Seasonality
 Autocorrelated
+
+Forecasting web traffic.ipynb
+Code :
+1. Load the dataset
+2. Data Exploration
+To see the whole data at once ->
+import matplotlib.pyplot as plt
+sessions = data['Sessions'].values -> .values(): convert it into a numpy array
+
+ar = np.arange(len(sessions)) -> .arrange(): creates numpy array from 0 to n-1 
+plt.figure(figsize=(22,10))
+plt.plot(ar, sessions,'r')
+plt.show()
+
+np.arange(start, stop, step) -> method helps to make an numpy array
+
+#first week web traffic
+sample = sessions[:168] -> 168/7 = 24 -> means 1 weeks hourly data
+ar = np.arange(len(sample))
+plt.figure(figsize=(22,10))
+plt.plot(ar, sample,'r')
+plt.show()
+
+Data Preparation ->
+def prepare_data(seq,num):
+  x=[]
+  y=[]
+
+  for i in range(0,(len(seq)-num),1):
+    
+    input_ = seq[i:i+num]
+    output  = seq[i+num]
+    
+    x.append(input_)
+    y.append(output)
+    
+  return np.array(x), np.array(y)
+example usage of the code :
+| i | input_             | output |
+| - | ------------------ | ------ |
+| 0 | seq[0:2] = [10,20] | 30     |
+| 1 | seq[1:3] = [20,30] | 40     |
+| 2 | seq[2:4] = [30,40] | 50     |
+
+then we call the actual data 'sessions' using the function :
+num=168
+x,y= prepare_data(sessions,num)
+ now we will get ->
+x: each item is a sequence of 168 past sessions
+y: each item is the next session value after those 168
+example of this is :
+sessions = [10, 20, 30, 40, 50, 60]
+num = 3
+
+x = [
+  [10, 20, 30],
+  [20, 30, 40],
+  [30, 40, 50]
+]
+
+y = [
+  40,
+  50,
+  60
+]
+
+
+Splitting the dataset into training and validation ->
+here we do this manually using and integer, and manually slicing the numpy array
+that is ->
+ind = int(0.9 * len(x))
+
+x_tr = x[:ind]
+y_tr = y[:ind]
+x_val=x[ind:]
+y_val=y[ind:]
+
+
