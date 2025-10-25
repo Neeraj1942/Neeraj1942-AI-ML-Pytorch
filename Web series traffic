@@ -1,2 +1,7 @@
 Time Series :
 Series of data points listed in time order
+
+The time series data can be ->
+Stationary
+Seasonality
+Autocorrelated
