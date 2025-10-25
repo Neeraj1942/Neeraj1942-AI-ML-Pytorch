@@ -217,6 +217,13 @@ Example - > [[2, 3, 4], [4, 5, 6, 7]]
 [[2 3 4 0 0 0]
  [4 5 6 7 0 0]]
 
+Note on padding ->
+| Padding Type      | Pad Location(LESS) | Truncation Side(MORE)   | Example (Max Len = 10, Sentence = 9 words)          |
+|  ---------------- | -----------------  | ---------------------   | --------------------------------------------------- |
+|  **Post-padding** | End of sequence    | Beginning of sequence   | "The quick brown fox jumps over the lazy dog [PAD]" |
+|  **Pre-padding**  | Start of sequence  | End of sequence         | "[PAD] The quick brown fox jumps over the lazy dog" |
+
+
 Note: If we have more than the max_length in the converted data, then the last after 100 are removed or truncated !
 
 Note: as we have used a new token (oov_token ='unk') we have to add this to our vocabulary size
@@ -402,5 +409,6 @@ Incase you want to use all the 1+ questions and predict the tags we can replace 
   apply threshold -> classes_array = np.array(classify(pred_prob, opt))
 
   inverse transform ->  predicted_tags = mlb.inverse_transform(classes_array)
+
 
 
