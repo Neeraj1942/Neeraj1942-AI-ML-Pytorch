@@ -71,6 +71,9 @@ y = [
   60
 ]
 
+what happens here is - afteer we use the data preparation code , we use 
+x as inputs values of a series of 168 values 
+y then predicts the 169th value, of the 168 series.
 
 Splitting the dataset into training and validation ->
 here we do this manually using and integer, and manually slicing the numpy array
@@ -82,4 +85,39 @@ y_tr = y[:ind]
 x_val=x[ind:]
 y_val=y[ind:]
 
+| Variable | Shape            | Meaning                                |
+| -------- | ---------------- | -------------------------------------- |
+| `x`      | `(samples, 168)` | Each row = one 168-step input sequence | 2-d 
+| `y`      | `(samples,)`     | Each value = the next single value     | 1-d 
 
+then we normalize the inputs/outputs ->
+for train we use fit_transform() ; validation we do transform() 
+
+as the y variable is 1-d and we have to reshape them to atleast 2-d to use the standard scaler to normalize them
+
+y_tr=y_tr.reshape(len(y_tr),1)
+y_val=y_val.reshape(len(y_val),1)
+
+#normalize the output
+y_scaler=StandardScaler()
+y_tr = y_scaler.fit_transform(y_tr)[:,0]
+y_val = y_scaler.transform(y_val)[:,0]
+
+array[:, 0] -> makes sure to convert the 2-d to 1-d array. 
+The : means “take all rows”.
+The 0 means “take the first column” (columns are 0-indexed).
+
+basically then we reshape it m=to make it ready for lastm and model building :
+x_tr = x_tr.reshape(x_tr.shape[0], x_tr.shape[1], 1)
+x_val = x_val.reshape(x_val.shape[0], x_val.shape[1], 1)
+
+x_tr.shape[0] → number of samples (rows)
+x_tr.shape[1] → number of timesteps (columns)
+1 → number of features per timestep
+
+so after reshaping : print(x_tr.shape) -> output : (4255, 168, 1)
+
+model building ->
+conv1d -> cnn layer for sequences
+
+Comparision with the baseline model :
