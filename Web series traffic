@@ -120,4 +120,77 @@ so after reshaping : print(x_tr.shape) -> output : (4255, 168, 1)
 model building ->
 conv1d -> cnn layer for sequences
 
-Comparision with the baseline model :
+Comparision with the baseline model : we use moving averages ->
+#build a simple model
+def compute_moving_average(data):
+  pred=[]
+  for i in data:
+    avg=np.sum(i)/len(i)
+    pred.append(avg)
+  return np.array(pred)
+
+just the average of the each list i of 168 elements in the whole array, and calc the avg
+
+Note : Helps you detect overfitting or underfitting
+If your neural network has very low training error but the baseline is already good, 
+and validation error is high → likely overfitting.
+Baseline shows how “hard” the problem is. Some time series are smooth; 
+sometimes, even a moving average does surprisingly well.
+
+So if temp originally had shape (10,) (1D array of 10 elements), 
+after temp.reshape(1, -1, 1) : The shape becomes (1, 10, 1)
+1 “batch”, 10 “timesteps”, 1 “feature” — 
+often used in machine learning for models that expect 3D input like LSTMs.
+
+def forecast(x_val, no_of_pred, ind):
+  predictions=[]
+
+  #intialize the array with previous weeks data  
+  temp=x_val[ind]
+
+  for i in range(no_of_pred): 
+
+    #predict for the next hour
+    pred=model.predict(temp.reshape(1,-1,1))[0][0]
+    
+    #append the prediction as the last element of array
+    temp = np.insert(temp,len(temp),pred)
+    predictions.append(pred)
+
+    #ignore the first element of array
+    temp = temp[1:]
+
+  return predictions
+
+example with values : 
+num = 3 (to simplify),
+x_val[ind] = [10, 12, 14] (last 3 hours of traffic),
+no_of_pred = 2 (we want next 2 hours).
+
+Iteration 1
+Input to model: [10, 12, 14]
+Model predicts: 16
+Append prediction: temp = [10, 12, 14, 16]
+Remove first element: temp = [12, 14, 16]
+predictions = [16]
+
+Iteration 2
+Input to model: [12, 14, 16]
+Model predicts: 18
+Append prediction: temp = [12, 14, 16, 18]
+Remove first element: temp = [14, 16, 18]
+predictions = [16, 18]
+✅ Result: forecast(x_val, 2, ind) returns [16, 18]
+
+temp = np.insert(temp,len(temp),pred) ->
+temp is the current sequence, pred is the next predicted value;
+np.insert(temp, len(temp), pred) appends pred to the end of temp for the next forecast step.
+
+Example : 
+y_val = [10, 20, 30, 40, 50, 60]
+ind = 2
+no_of_pred = 3
+
+y_true = y_val[ind:ind+no_of_pred]
+print(y_true)  # Output: [30, 40, 50]
+
