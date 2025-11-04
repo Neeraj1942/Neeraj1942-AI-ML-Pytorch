@@ -130,3 +130,9 @@ Suggestions:
 Try different architectures.
 Use longer sequences or more frequency features.
 Experiment with CNN + LSTM hybrid.
+
+dimensions are conventionally ordered as:
+(number of examples, number of timesteps, number of features per timestep)
+(1,200,160)
+
+for cnn : (number of examples, timesteps, features) = (N, 32000, 1)
