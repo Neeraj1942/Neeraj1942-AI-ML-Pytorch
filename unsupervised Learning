@@ -85,3 +85,61 @@ train_y, val_y = train_y[:split_size], train_y[split_size:]
 temp = pd.DataFrame({"val_y":val_y, "cluster_name":pred})
 temp[temp.cluster_name == 1].head()
 
+train_y = train.label.values          # gets actual labels from the dataset
+train_y, val_y = train_y[:split_size], train_y[split_size:]  # split into train/val
+
+temp = pd.DataFrame({"val_y": val_y, "cluster_name": pred})  # create DataFrame
+temp[temp.cluster_name == 1].head()  # filter rows where cluster == 1
+
+
+
+
+# train a kmeans clustering model to categorize the features of images
+
+## define kmeans model
+km = KMeans(n_clusters=10) 
+we use 10 cluster because the images are from 0---9 : 10
+
+
+# visualize multiple images of cluster
+## create plot
+fig,axes = plt.subplots(nrows=5,ncols=5,figsize=(10,10))
+
+
+## set row name on the basis of clusters
+rows = ['Images belong to Cluster {}'.format(row) for row in ['1', '2', '3', '4', '5']]
+for ax, row in zip(axes[:,0], rows):
+    ax.annotate(row, xy=(0, 0.5), xytext=(-ax.yaxis.labelpad - 5, 0),
+                xycoords=ax.yaxis.label, textcoords='offset points',
+                size='large', ha='right', va='center')
+
+## set images in subplots
+for i in range(5):
+  temp2 = temp[temp.cluster_name == i].head() 
+  for j, img in enumerate(val_x[temp2.index.values]):
+    img = img.reshape((28, 28))
+    axes[i][j].imshow(img, cmap='gray')
+
+## adjust plot with respect to the column title
+fig.tight_layout()
+fig.subplots_adjust(left=0.15, top=0.95)
+
+## show plot
+plt.show()
+
+to print what the 10 clusters look like the images attached to each.
+
+
+# print score of overall model
+normalized_mutual_info_score(pred, val_y)
+to get the scores of the similarity
+
+
+list of most famously used alogorithms for unsupervised learning are : 
+| Algorithm                                 | Why it’s considered “successful”                                                                                             | Short explanation                                                                                                                                               |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SimCLR                                    | One of the early breakthroughs in contrastive self‑supervision; simple yet strong. ([mmselfsup.readthedocs.io][1])           | Learns representations by contrasting augmented views of the same sample (“positive pair”) versus others (“negatives”). Good linear‑probe accuracy on ImageNet. |
+| MoCo v2 (Momentum Contrast v2)            | Improves on SimCLR by needing smaller batches, more efficient memory queue. ([Emergent Mind][2])                             | Uses a momentum encoder + queue of negative samples to enable good unsupervised pre‑training with less extreme hardware/batch size.                             |
+| BYOL (Bootstrap Your Own Latent)          | Shows strong performance without explicit negative pairs (in some settings). ([Maike Behrendt, PhD student][3])              | Learns by comparing two network outputs (online/target) of differently augmented views of same image; no need for explicit “negative” samples.                  |
+| SwAV (Swapping Assignments between Views) | Combines clustering + contrastive/slightly different objective; strong on transfer tasks. ([Maike Behrendt, PhD student][3]) | Learns representations by assigning features of views to prototype clusters and swappings assignments across views.                                             |
+| Barlow Twins                              | Recent method focusing on invariance and redundancy reduction; competitive SOTA. ([ResearchGate][4])                         | Enforces representation dimensions to be decorrelated (“redundancy reduction”) while keeping invariance across augmented views.                                 |
