@@ -38,3 +38,95 @@ x_val_features = x_val.reshape(len(x_val),-1,1)
 
 print("Reshaped Array Size",x_tr_features.shape)
 before when we had thisa the output was : Reshaped Array Size (2701, 32000, 1) ; now when we fix the dimension to 160 we get Reshaped Array Size (2701, 200, 160)
+
+then we use a spectogram , a usecase in scipy library : 
+1. Problem & Motivation
+Goal: Detect emergency vehicles automatically to prioritize traffic signals.
+Motivation: Delay in emergency response leads to many deaths.
+
+2. Dataset
+Two audio classes: emergency.wav and non-emergency.wav.
+Sampling rate: 16,000 Hz → 2-second audio → 32,000 samples.
+
+3. Libraries
+librosa: Audio processing.
+IPython.display: Play audio in notebook.
+numpy: Array operations.
+matplotlib: Visualization.
+scipy: Signal processing.
+keras: Deep learning models (Conv1D, LSTM, Dense).
+
+4. Load Audio
+Load emergency and non-emergency audio using librosa.load.
+Check duration: librosa.get_duration(y, sr) → convert seconds to minutes.
+
+5. Prepare Data
+Split audio into 2-second chunks (32,000 samples each).
+Function: prepare_data(audio, num_of_samples=32000) → returns list of chunks.
+Listen to some chunks using ipd.Audio(chunk, rate=16000).
+
+6. Visualize Audio
+Time-domain waveform plots:
+x-axis: Time (seconds)
+y-axis: Amplitude
+Example: plt.plot(np.linspace(0,2,num=32000), emergency[103]).
+
+7. Combine & Label Data
+Combine emergency and non-emergency chunks: audio = np.concatenate([...]).
+Create labels:
+Emergency → 0
+Non-emergency → 1
+Combine labels: labels = np.concatenate([labels1, labels2]).
+
+8. Train-Test Split
+Use train_test_split with stratify=labels:
+Training: 90%
+Validation: 10%
+Convert to 3D array for model input: (samples, timesteps, features)
+Example: x_tr.reshape(len(x_tr), -1, 1)
+
+9. CNN Model
+Architecture:
+Conv1D + ReLU + Dropout + MaxPooling1D
+Another Conv1D + ReLU + Dropout + MaxPooling1D
+GlobalMaxPool1D
+Dense layers → output (sigmoid)
+Compile: binary_crossentropy loss, adam optimizer, metric=accuracy.
+Train & save best weights using ModelCheckpoint.
+
+10. Evaluate CNN
+Evaluate on validation set: _, acc = model.evaluate(x_val_features, y_val)
+Prediction example:
+prob = model.predict(feature.reshape(1, -1, 1))
+If prob[0][0] < 0.5 → emergency else non-emergency.
+
+11. LSTM Model
+Reshape input for LSTM: (samples, timesteps, features)
+Example: x_tr.reshape(len(x_tr), -1, 160)
+Architecture:
+LSTM(128)
+Dropout(0.3)
+Dense(64, ReLU)
+Dense(1, Sigmoid)
+Train & evaluate similar to CNN.
+
+12. Spectrogram Features
+Compute spectrogram using scipy.signal.spectrogram.
+Parameters: nperseg=320, noverlap=160
+Normalize spectrogram ((x-mean)/std) before feeding to model.
+Train both LSTM and CNN on spectrogram features.
+
+13. Model Training & Evaluation
+Train for a few epochs.
+Plot training vs validation loss.
+Evaluate on validation set.
+Save & load best model weights for inference.
+
+14. Summary / What Next
+Models trained on:
+Raw audio chunks (time-domain)
+Spectrogram features (frequency-domain)
+Suggestions:
+Try different architectures.
+Use longer sequences or more frequency features.
+Experiment with CNN + LSTM hybrid.
