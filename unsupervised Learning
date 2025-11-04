@@ -1,1 +1,87 @@
 "Unsupervised learning models are trained without any target variable; they learn patterns or structures from the input data itself."
+examples ->
+1. identify the age group for the banking customer
+2. Personalizing adds based on a website personalized
+3. giving similar image suggestions to the customer
+
+Our problem statement : To arrange pictures in a library according to the context/content in them
+Introduction to ->
+Autoencoders : input -> features -> image reconstructer -> input
+| Component   | Purpose                                       | Input Shape                | Output Shape               | Notes                                          |
+| ----------- | --------------------------------------------- | -------------------------- | -------------------------- | ---------------------------------------------- |
+| **Encoder** | Compresses input to latent representation     | `(batch_size, input_dim)`  | `(batch_size, latent_dim)` | Learns key features; reduces dimensionality    |
+| **Decoder** | Reconstructs input from latent representation | `(batch_size, latent_dim)` | `(batch_size, input_dim)`  | Tries to make output similar to original input |
+
+| Component   | Input | Output | Purpose                        |
+| ----------- | ----- | ------ | ------------------------------ |
+| Encoder     | x     | z      | Compress input to latent space |
+| Decoder     | z     | x̂     | Reconstruct input from latent  |
+| Autoencoder | x     | x̂     | Minimize reconstruction loss   |
+
+code : 
+in the model we ->
+# define architecture of autoencoder
+
+## this is our input placeholder
+input_img = Input(shape=(784, ))
+
+## "encoded" is the encoded representation of the input
+encoded = Dense(2000, activation='relu')(input_img)
+encoded = Dense(500, activation='relu')(encoded)
+encoded = Dense(100, activation='relu')(encoded)
+encoded = Dense(10, activation='linear')(encoded)
+
+## "decoded" is the lossy reconstruction of the input
+decoded = Dense(100, activation='relu')(encoded)
+decoded = Dense(500, activation='relu')(decoded)
+decoded = Dense(784, activation='sigmoid')(decoded)
+
+## this model maps an input to its reconstruction
+autoencoder = Model(input_img, decoded)
+
+## this model maps an input to its features
+encoder = Model(input_img, encoded)
+
+
+we use : autoencoder = Model(input_img, decoded)
+Maps input → reconstructed output.
+This is what we train using a loss like MSE or binary cross-entropy.
+Goal: Make decoded as close as possible to input_img.
+
+encoder = Model(input_img, encoded)
+Maps input → compressed features (length 10).
+This is used after training to get the features of input data.
+You don’t train this separately; it shares the same weights as the encoder part of the autoencoder.
+
+Note : 
+Autoencoder: Maps Input → Encoded → Decoded.
+Full model: autoencoder = Model(input_img, decoded)
+Encoder: Maps only Input → Encoded.
+Partial model: encoder = Model(input_img, encoded)
+Reuses the same layers as the autoencoder up to the encoded layer.
+
+# check output of autoencoder model
+temp = autoencoder.predict(train_x)
+plt.imshow(temp[0].reshape((28, 28)), cmap='gray')
+
+plt.imshow(temp[0].reshape((28, 28)), cmap='gray')
+-> we make the 784 values from 1-d to 2-d using reshape(28,28) 
+temp = autoencoder.predict(train_x) -> 
+temp[0] - gives 784 data points as the last decoder is 784 values
+
+but when we do ->
+# check output of encoder model
+temp = encoder.predict(train_x)
+temp[0]
+we get 10 rows because the last encoder is set to 10 rows.
+
+
+
+# get actual classes
+train_y = train.label.values -> train.label accesses the column named "label" in the DataFrame
+train_y, val_y = train_y[:split_size], train_y[split_size:]
+
+# compare clusters with actual classes
+temp = pd.DataFrame({"val_y":val_y, "cluster_name":pred})
+temp[temp.cluster_name == 1].head()
+
