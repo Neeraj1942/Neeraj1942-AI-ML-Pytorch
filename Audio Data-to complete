@@ -1,0 +1,40 @@
+Amplitude : The maximum displacement of the particle from its rest postion.
+The postion can also be known as the mean position of the particle
+
+Cycle : One complete upward and downward movement is called a cycle ( of a wave w.r.t to its mean postion)
+
+Frequency : how fast the signals changes over time
+
+Types of signals :
+1. Digital : Discrete and Finite ( has either 0 or 1 value)
+2. Analog : Can have infinite number of values (continuous wave which changes over time)
+
+Sampling : converting analog signals to digital 
+Sampling rate : Average number of samples captured in one second
+Higher the sampling rate higher is the sound quality
+ex -> 8000 hertz 
+
+Time domain : Amplitude vs time
+Spectrogram : Every point represents an amplitude of the frequency at particular time
+
+Problem statement : we have to detect if the audio signals is of a emergency vehcle or not ,then make sure the signals turn green for the vehicle to pass by fast, saving life
+
+code :
+np.linspace(start, stop, num)
+usage : plt.plot(np.linspace(0, 2, num=32000), emergency[103])
+
+# reshape chunks
+x_tr_features  = x_tr.reshape(len(x_tr),-1,160)
+x_val_features = x_val.reshape(len(x_val),-1,160)
+
+print("Reshaped Array Size",x_tr_features.shape)
+print("Reshaped Array Size",x_val_features.shape)
+You had 32,000 samples per clip, and you’re dividing each into chunks of 160 samples:
+32000 ÷ 160 = 200
+thats why -> 
+
+x_tr_features  = x_tr.reshape(len(x_tr),-1,1)
+x_val_features = x_val.reshape(len(x_val),-1,1)
+
+print("Reshaped Array Size",x_tr_features.shape)
+before when we had thisa the output was : Reshaped Array Size (2701, 32000, 1) ; now when we fix the dimension to 160 we get Reshaped Array Size (2701, 200, 160)
